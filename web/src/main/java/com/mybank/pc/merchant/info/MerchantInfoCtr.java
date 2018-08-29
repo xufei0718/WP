@@ -61,7 +61,7 @@ public class MerchantInfoCtr extends CoreController {
     public void save() {
 
         MerchantInfo merInfo = getModel(MerchantInfo.class,"",true);
-
+        merInfo.setMerchantType("1");
         String merNo = merchantInfoSrv.getMerchantNo(merInfo.getMerchantType());
         merInfo.setMerchantNo(merNo);
         merInfo.setCat(new Date());

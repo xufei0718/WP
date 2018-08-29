@@ -37,16 +37,16 @@
                 <FormItem label="商户名称" prop="merchantName">
                     <Input v-model="merInfo.merchantName" placeholder="请输入..." style="width: 300px"/>
                 </FormItem>
-                <FormItem label="商户类型" prop="merchantType">
+                <!--<FormItem label="商户类型" prop="merchantType">
                     <Select v-model="merInfo.merchantType" style="width:300px" :disabled="isEditMerType">
                         <Option v-for="item in merchantTypeList" :value="item.text" :key="item.text">{{ item.title }}</Option>
                     </Select>
-                </FormItem>
-                <FormItem label="手续费计算方式" prop="feeCollectType">
+                </FormItem>-->
+          <!--      <FormItem label="手续费计算方式" prop="feeCollectType">
                     <Select v-model="merInfo.feeCollectType" style="width:300px">
                         <Option v-for="item in feeCollectTypeList" :value="item.text" :key="item.text">{{ item.title }}</Option>
                     </Select>
-                </FormItem>
+                </FormItem>-->
 
                 <FormItem label="负责人名称" prop="perName">
                     <Input v-model="merInfo.perName" placeholder="请输入..." style="width: 300px"/>
@@ -63,37 +63,37 @@
                 <FormItem label="负责人联系地址" prop="address">
                     <Input v-model="merInfo.address" placeholder="请输入..." style="width: 300px"/>
                 </FormItem>
-                <FormItem label="备用联系地址1" prop="mobile1">
+             <!--   <FormItem label="备用联系地址1" prop="mobile1">
                     <Input v-model="merInfo.mobile1" placeholder="请输入..." style="width: 300px"/>
-                </FormItem>
-                <FormItem label="备用联系地址2" prop="mobile2">
-                    <Input v-model="merInfo.mobile2" placeholder="请输入..." style="width: 300px"/>
-                </FormItem>
-                <!--<FormItem label="预存手续费余额" prop="feeAmount">
-                    <Input v-model="merInfo.feeAmount" placeholder="请输入..." style="width: 300px"/>
                 </FormItem>-->
-                <FormItem label="最大代扣金额" prop="maxTradeAmount">
-                    <Input v-model="merInfo.maxTradeAmount" placeholder="请输入..." style="width: 300px"/>
-                </FormItem>
-                <FormItem label="清算银行卡号" prop="bankNo">
-                    <Input v-model="merInfo.bankNo" placeholder="请输入..." style="width: 300px"/>
-                </FormItem>
-                <FormItem label="清算银行卡户名" prop="bankAccountName">
-                    <Input v-model="merInfo.bankAccountName" placeholder="请输入..." style="width: 300px"/>
-                </FormItem>
-                <FormItem label="清算银行卡预留手机号" prop="bankPhone">
-                    <Input v-model="merInfo.bankPhone" placeholder="请输入..." style="width: 300px"/>
-                </FormItem>
-                <FormItem label="清算银行卡开户行全名" prop="bankName">
-                    <Input v-model="merInfo.bankName" placeholder="请输入..." style="width: 300px"/>
-                </FormItem>
-                <FormItem label="清算银行卡开户行行号" prop="bankCode">
-                    <Input v-model="merInfo.bankCode" placeholder="请输入..." style="width: 300px"/>
-                </FormItem>
+                <!--<FormItem label="备用联系地址2" prop="mobile2">-->
+                    <!--<Input v-model="merInfo.mobile2" placeholder="请输入..." style="width: 300px"/>-->
+                <!--</FormItem>-->
+                <!--&lt;!&ndash;<FormItem label="预存手续费余额" prop="feeAmount">-->
+                    <!--<Input v-model="merInfo.feeAmount" placeholder="请输入..." style="width: 300px"/>-->
+                <!--</FormItem>&ndash;&gt;-->
+                <!--<FormItem label="最大代扣金额" prop="maxTradeAmount">-->
+                    <!--<Input v-model="merInfo.maxTradeAmount" placeholder="请输入..." style="width: 300px"/>-->
+                <!--</FormItem>-->
+                <!--<FormItem label="清算银行卡号" prop="bankNo">-->
+                    <!--<Input v-model="merInfo.bankNo" placeholder="请输入..." style="width: 300px"/>-->
+                <!--</FormItem>-->
+                <!--<FormItem label="清算银行卡户名" prop="bankAccountName">-->
+                    <!--<Input v-model="merInfo.bankAccountName" placeholder="请输入..." style="width: 300px"/>-->
+                <!--</FormItem>-->
+                <!--<FormItem label="清算银行卡预留手机号" prop="bankPhone">-->
+                    <!--<Input v-model="merInfo.bankPhone" placeholder="请输入..." style="width: 300px"/>-->
+                <!--</FormItem>-->
+                <!--<FormItem label="清算银行卡开户行全名" prop="bankName">-->
+                    <!--<Input v-model="merInfo.bankName" placeholder="请输入..." style="width: 300px"/>-->
+                <!--</FormItem>-->
+                <!--<FormItem label="清算银行卡开户行行号" prop="bankCode">-->
+                    <!--<Input v-model="merInfo.bankCode" placeholder="请输入..." style="width: 300px"/>-->
+                <!--</FormItem>-->
 
 
-                <FormItem label="手持身份证照片" prop="cardImg">
-                    <!--<Input v-model="merInfo.cardImg" placeholder="请输入..." style="width: 300px"/>-->
+           <!--     <FormItem label="手持身份证照片" prop="cardImg">
+                    &lt;!&ndash;<Input v-model="merInfo.cardImg" placeholder="请输入..." style="width: 300px"/>&ndash;&gt;
 
                     <Upload
                             ref="upload"
@@ -148,7 +148,7 @@
                         <div style="line-height: 32px;">点击上传身份证背面</div>
                         <img :src="urlCardF" v-show="showImgCardF" width="300">
                     </Upload>
-                </FormItem>
+                </FormItem>-->
             </Form>
             <div slot="footer">
                 <Button type="success" :loading="modalLoading" @click="save">保存</Button>
@@ -783,31 +783,31 @@
                         align: 'center',
 
                     },
-                    {
+                  /*  {
                         title: '商户类型',
                         key: 'merTypeTxt',
                         align: 'center',
 
-                    },
+                    },*/
                     {
                         title: '负责人姓名',
                         key: 'perName',
                         align: 'center',
                     },
-                    // {
-                    //     title: '身份证号码',
-                    //     key: 'cardID',
-                    // },
+                    {
+                        title: '身份证号码',
+                        key: 'cardID',
+                    },
                     {
                         title: '手机',
                         key: 'mobile',
                         align: 'center',
                     },
-                    {
+                  /*  {
                         title: '手续费',
                         key: 'feeAmount',
                         align: 'center',
-                    },
+                    },*/
                     {
                         title: '创建时间',
                         key: 'catTxt',
@@ -841,7 +841,7 @@
                     {
                         title: '操作',
                         key: 'action',
-                        width: 310,
+                        width: 180,
                         align: 'center',
                         render: (h, param) => {
                             if (!param.row.dAt) {
@@ -849,8 +849,8 @@
 
 
                                     return h('div', [
-                                        feeBtn(this, h, param),
-                                        feeAddBtn(this, h, param),
+                                       // feeBtn(this, h, param),
+                                       // feeAddBtn(this, h, param),
                                         editBtn(this, h, param),
                                         delBtn(this, h, param),
                                         stopBtn(this, h, param),
@@ -860,8 +860,8 @@
 
 
                                     return h('div', [
-                                        feeBtn(this, h, param),
-                                        feeAddBtn(this, h, param),
+                                       // feeBtn(this, h, param),
+                                       // feeAddBtn(this, h, param),
                                         editBtn(this, h, param),
                                         delBtn(this, h, param),
                                         actBtn(this, h, param),
