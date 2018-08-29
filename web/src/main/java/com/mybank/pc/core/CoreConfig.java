@@ -1,20 +1,10 @@
 package com.mybank.pc.core;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.mybank.pc.merchant.user.MerchantUserCtr;
-import org.slf4j.LoggerFactory;
-
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.druid.filter.stat.StatFilter;
 import com.alibaba.druid.wall.WallFilter;
-import com.cybermkd.mongo.plugin.MongoJFinalPlugin;
-import com.jfinal.config.Constants;
-import com.jfinal.config.Handlers;
-import com.jfinal.config.Interceptors;
-import com.jfinal.config.JFinalConfig;
-import com.jfinal.config.Plugins;
-import com.jfinal.config.Routes;
+import com.jfinal.config.*;
 import com.jfinal.core.JFinal;
 import com.jfinal.handler.Handler;
 import com.jfinal.json.FastJsonFactory;
@@ -53,9 +43,11 @@ import com.mybank.pc.kits.DateKit;
 import com.mybank.pc.kits.ResKit;
 import com.mybank.pc.merchant.cust.MerchantCustCtr;
 import com.mybank.pc.merchant.info.MerchantInfoCtr;
+import com.mybank.pc.merchant.user.MerchantUserCtr;
+import org.slf4j.LoggerFactory;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by yuhaihui8913 on 2017/11/14.
@@ -208,11 +200,11 @@ public class CoreConfig extends JFinalConfig {
 			Cron4jPlugin cron4jPlugin = new Cron4jPlugin("task.properties", "cron4j");
 			plugins.add(cron4jPlugin);
 //		}
-		MongoJFinalPlugin jFinalPlugin = new MongoJFinalPlugin();
+		/*MongoJFinalPlugin jFinalPlugin = new MongoJFinalPlugin();
 		jFinalPlugin.add(ResKit.getConfig("mongodb.ip"), ResKit.getConfigInt("mongodb.port"));
 		jFinalPlugin.setDatabase(ResKit.getConfig("mongodb.db"));
 		jFinalPlugin.auth(ResKit.getConfig("mongodb.user"), ResKit.getConfig("mongodb.pwd"));
-		plugins.add(jFinalPlugin);
+		plugins.add(jFinalPlugin);*/
 		// mail 插件
 		plugins.add(new MailPlugin(PropKit.use("mail.properties").getProperties()));
 
