@@ -74,11 +74,11 @@ export const appRouter = [
             { path: 'user', title: '用户管理', isCheck: 'yes', name: 'admin_user', component: resolve => { require(['@/views/admin/user/main.vue'], resolve); } },
             { path: 'role', title: '角色管理', isCheck: 'yes', name: 'admin_role', component: resolve => { require(['@/views/admin/role/main.vue'], resolve); } },
             { path: 'tax', title: '分类管理', isCheck: 'yes', name: 'admin_tax', component: resolve => { require(['@/views/admin/taxonomy/main.vue'], resolve); } },
-            { path: 'art', title: '文章管理', isCheck: 'yes', name: 'admin_art', component: resolve => { require(['@/views/admin/art/main.vue'], resolve); } },
+           // { path: 'art', title: '文章管理', isCheck: 'yes', name: 'admin_art', component: resolve => { require(['@/views/admin/art/main.vue'], resolve); } },
             // { path: 'artList', title: '文章列表', name: 'admin_artList', component: resolve => { require(['@/views/admin/art/list.vue'], resolve); } },
         ]
     },
-    {
+ /*   {
         path: '/cclear',
         icon: 'calculator',
         isCheck: 'yes',
@@ -91,7 +91,7 @@ export const appRouter = [
             { path: 'clm', title: '商户清分查询', isCheck: 'yes', name: 'collectionClear_clm', component: resolve => { require(['@/views/collection-clear/clearList_mer.vue'], resolve); } },
             { path: 'debit', title: '出账处理', isCheck: 'yes', name: 'collectionClear_debit', component: resolve => { require(['@/views/collection-clear/debit.vue'], resolve); } },
         ]
-    },
+    },*/
     {
         path: '/mer',
         icon: 'monitor',
@@ -101,9 +101,9 @@ export const appRouter = [
         component: Main,
         children: [
             { path: 'merinfo', title: '商户信息管理', isCheck: 'yes', name: 'merinfo', component: resolve => { require(['@/views/mer/merinfo/main.vue'], resolve); } },
-            { path: 'merquery', title: '商户信息查询', isCheck: 'yes', name: 'merquery', component: resolve => { require(['@/views/mer/merinfo/merquery.vue'], resolve); } },
-            { path: 'custquery', title: '商户客户管理', isCheck: 'yes', name: 'custquery', component: resolve => { require(['@/views/mer/custquery/main.vue'], resolve); } },
-            { path: 'feequery', title: '商户手续费查询', isCheck: 'yes', name: 'feequery', component: resolve => { require(['@/views/mer/fee/main.vue'], resolve); } },
+      //      { path: 'merquery', title: '商户信息查询', isCheck: 'yes', name: 'merquery', component: resolve => { require(['@/views/mer/merinfo/merquery.vue'], resolve); } },
+   //         { path: 'custquery', title: '商户客户管理', isCheck: 'yes', name: 'custquery', component: resolve => { require(['@/views/mer/custquery/main.vue'], resolve); } },
+     //       { path: 'feequery', title: '商户手续费查询', isCheck: 'yes', name: 'feequery', component: resolve => { require(['@/views/mer/fee/main.vue'], resolve); } },
         ]
     },
     {
@@ -115,7 +115,7 @@ export const appRouter = [
         component: Main,
         children: [
             { path: 'custquery', title: '商户客户管理', isCheck: 'yes', name: 'custquery', component: resolve => { require(['@/views/mer/custquery/main.vue'], resolve); } },
-            { path: 'feequery', title: '商户手续费查询', isCheck: 'yes', name: 'feequery', component: resolve => { require(['@/views/mer/fee/main.vue'], resolve); } },
+        //    { path: 'feequery', title: '商户手续费查询', isCheck: 'yes', name: 'feequery', component: resolve => { require(['@/views/mer/fee/main.vue'], resolve); } },
         ]
     },
     {
@@ -130,7 +130,7 @@ export const appRouter = [
 
         ]
     },
-    {
+/*    {
         path: '/coll',
         icon: 'monitor',
         isCheck: 'no',
@@ -143,7 +143,7 @@ export const appRouter = [
             { path: 'batch', title: '批量交易管理', isCheck: 'yes', name: 'coll_batch_trade', component: resolve => { require(['@/views/coll/batch/main.vue'], resolve); } }
             // { path: 'reconciliation', title: '对账管理', isCheck: 'yes', name: 'coll_reconciliation', component: resolve => { require(['@/views/coll/reconciliation/main.vue'], resolve); } }
         ]
-    }
+    }*/
 ];
 
 // 所有上面定义的路由都要写在下面的routers里

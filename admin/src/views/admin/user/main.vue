@@ -354,14 +354,14 @@
                         title: '手机号',
                         key: 'phone',
                     },
-                    {
+                /*    {
                         title: 'EMAIL',
                         key: 'email',
                     },
                     {
                         title: '证件号',
                         key: 'idcard',
-                    },
+                    },*/
                     {
                         title: '角色信息',
                         key: 'rolesDescStr',

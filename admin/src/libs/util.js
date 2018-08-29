@@ -7,7 +7,7 @@ let util = {
 
 };
 util.title = function (title) {
-    title = title || 'MYBANK代收付系统控制台';
+    title = title || '二维码支付管理系统';
     window.document.title = title;
 };
 

@@ -78,7 +78,7 @@ module.exports = merge(webpackBaseConfig, {
         }
         ),
         new HtmlWebpackPlugin({
-            title: 'MYBANK代收付系统',
+            title: '二维码支付管理系统',
             favicon: './logo-min.png',
             filename: '../index.html',
             template: './src/template/index.ejs',
