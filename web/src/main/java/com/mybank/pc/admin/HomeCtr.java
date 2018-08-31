@@ -1,20 +1,15 @@
 package com.mybank.pc.admin;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.jfinal.kit.Kv;
-import com.jfinal.plugin.activerecord.Record;
+import cn.hutool.core.util.ObjectUtil;
 import com.mybank.pc.Consts;
-import com.mybank.pc.collection.model.UnionpayCollection;
 import com.mybank.pc.core.CoreController;
 import com.mybank.pc.merchant.cust.MerchantCustSrv;
 import com.mybank.pc.merchant.model.MerchantFee;
 import com.mybank.pc.merchant.model.MerchantInfo;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.util.ObjectUtil;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HomeCtr extends CoreController {
 	private MerchantCustSrv merchantCustSrv = enhance(MerchantCustSrv.class);
@@ -48,15 +43,13 @@ public class HomeCtr extends CoreController {
 		} else {
 			custCount = merchantCustSrv.totalLastCust(null);
 		}
-		Record tradeHomePageTotalRecord = UnionpayCollection
-				.tradeHomePageTotal(Kv.create().set("merchantID", merInfo == null ? "" : merInfo.getId()).set("dayDate",
-						new DateTime().toString("yyyyMMdd")));
+
 
 		Map map = new HashMap();
-		map.put("amount", tradeHomePageTotalRecord.get("currentDayTotalAmount"));
-		map.put("tradeCount", tradeHomePageTotalRecord.get("urrentDayTotalCount"));
+		map.put("amount", "0");
+		map.put("tradeCount", "0");
 		map.put("custCount", custCount);
-		map.put("feeAmount", tradeHomePageTotalRecord.get("urrentDayTotalMerFee"));
+		map.put("feeAmount", "0");
 		renderJson(map);
 	}
 

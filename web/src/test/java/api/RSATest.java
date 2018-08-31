@@ -1,4 +1,4 @@
-package api;
+/*package api;
 
 import static com.mybank.pc.kits.RSAKit.decrypt;
 import static com.mybank.pc.kits.RSAKit.encrypt;
@@ -42,4 +42,4 @@ public class RSATest {
 		//keyTest();
 		test();
 	}
-}
+}*/

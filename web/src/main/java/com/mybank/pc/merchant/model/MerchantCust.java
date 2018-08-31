@@ -1,6 +1,5 @@
 package com.mybank.pc.merchant.model;
 
-import com.mybank.pc.admin.model.CardBin;
 import com.mybank.pc.kits.DateKit;
 import com.mybank.pc.kits.FeeKit;
 import com.mybank.pc.merchant.model.base.BaseMerchantCust;
@@ -20,8 +19,6 @@ public class MerchantCust extends BaseMerchantCust<MerchantCust> {
 		return MerchantInfo.dao.findById(getMerID());
 	}
 
-	public CardBin getCardBin() {
-		return FeeKit.getCardBin(getBankcardNo());
-	}
+
 
 }

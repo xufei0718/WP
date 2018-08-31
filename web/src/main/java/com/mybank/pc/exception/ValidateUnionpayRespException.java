@@ -1,12 +1,10 @@
 package com.mybank.pc.exception;
 
-import com.mybank.pc.collection.model.sender.SendProxy;
-
 public class ValidateUnionpayRespException extends BaseCollectionRuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	private SendProxy sendProxy;
+
 
 	private String merid;
 
@@ -39,12 +37,5 @@ public class ValidateUnionpayRespException extends BaseCollectionRuntimeExceptio
 		this.merid = merid;
 	}
 
-	public SendProxy getSendProxy() {
-		return sendProxy;
-	}
-
-	public void setSendProxy(SendProxy sendProxy) {
-		this.sendProxy = sendProxy;
-	}
 
 }

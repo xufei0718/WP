@@ -29,13 +29,6 @@ import com.mybank.pc.admin.res.ResCtr;
 import com.mybank.pc.admin.role.RoleCtr;
 import com.mybank.pc.admin.taxonomy.TaxCtr;
 import com.mybank.pc.admin.user.UserCtr;
-import com.mybank.pc.collection.api.CEntrustInterface;
-import com.mybank.pc.collection.api.CTradeInterface;
-import com.mybank.pc.collection.clear.CClearCtr;
-import com.mybank.pc.collection.entrust.CEntrustCtr;
-import com.mybank.pc.collection.trade.BackRcvResponse;
-import com.mybank.pc.collection.trade.CBatchTradeCtr;
-import com.mybank.pc.collection.trade.CTradeCtr;
 import com.mybank.pc.interceptors.AdminAAuthInterceptor;
 import com.mybank.pc.interceptors.AdminIAuthInterceptor;
 import com.mybank.pc.interceptors.ExceptionInterceptor;
@@ -92,15 +85,7 @@ public class CoreConfig extends JFinalConfig {
 			}
 		});
 
-		routes.add(new Routes() {
-			@Override
-			public void config() {
-				add("/coll/trade", CTradeCtr.class);
-				add("/coll/batch", CBatchTradeCtr.class);
-				add("/coll/entrust", CEntrustCtr.class);
-				add("/coll/backRcvResponse", BackRcvResponse.class);
-			}
-		});
+
 
 		routes.add(new Routes() {
 			@Override
@@ -135,12 +120,7 @@ public class CoreConfig extends JFinalConfig {
 		});
 
 		// 清分模块路由
-		routes.add(new Routes() {
-			@Override
-			public void config() {
-				add("/cc", CClearCtr.class);
-			}
-		});
+
 		routes.add(new Routes() {
 			@Override
 			public void config() {
@@ -148,13 +128,7 @@ public class CoreConfig extends JFinalConfig {
 			}
 		});
 
-		routes.add(new Routes() {
-			@Override
-			public void config() {
-				add("/coll/api/entrust", CEntrustInterface.class);
-				add("/coll/api/trade", CTradeInterface.class);
-			}
-		});
+
 	}
 
 	@Override

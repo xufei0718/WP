@@ -1,3 +1,4 @@
+/*
 package api;
 
 import java.text.SimpleDateFormat;
@@ -130,3 +131,4 @@ public class CollectionTest {
 		queryTest();
 	}
 }
+*/

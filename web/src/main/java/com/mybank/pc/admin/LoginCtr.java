@@ -26,8 +26,10 @@ import com.mybank.pc.kits.ResKit;
 import com.mybank.pc.kits.ext.BCrypt;
 import com.mybank.pc.merchant.info.MerchantInfoSrv;
 
-import java.sql.Struct;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by yuhaihui8913 on 2018/1/26. 登录请求 处理
