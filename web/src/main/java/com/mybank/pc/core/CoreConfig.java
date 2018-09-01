@@ -37,6 +37,7 @@ import com.mybank.pc.kits.ResKit;
 import com.mybank.pc.merchant.cust.MerchantCustCtr;
 import com.mybank.pc.merchant.info.MerchantInfoCtr;
 import com.mybank.pc.merchant.user.MerchantUserCtr;
+import com.mybank.pc.qrcode.wxacct.QrcodeWxCtr;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
@@ -119,6 +120,13 @@ public class CoreConfig extends JFinalConfig {
 			}
 		});
 
+
+		routes.add(new Routes() {
+			@Override
+			public void config() {
+				add("/qr00", QrcodeWxCtr.class);
+			}
+		});
 		// 清分模块路由
 
 		routes.add(new Routes() {

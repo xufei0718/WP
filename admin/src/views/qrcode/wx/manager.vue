@@ -1,0 +1,101 @@
+<template>
+    <div>
+        <Row>
+            <Col span="24">
+                <Card>
+                    <p slot="title">
+                        <Icon type="help-buoy"></Icon>
+                        微信账号管理页面
+                    </p>
+                    <Row style="padding: 10px 20px 20px 20px">
+                        <Col span="24">
+
+                            <span style="font-size: 24px;  vertical-align: middle; padding-right: 50px"> 微信账号：{{qrcodeWx.wxAcct}}</span>
+
+                      <Button  type="primary" icon="search" size="large">微信登录</Button>
+
+
+                                <Button type="error" icon="ios-trash" size="large">删除账号</Button>
+                            <Button type="error" icon="refresh" size="large" @click="ret">返回</Button>
+                        </Col>
+
+                    </Row>
+                    <Row>
+                        <Col span="12" >
+                            <Card style="margin-right: 5px ;height: 400px">
+                                <p slot="title">上传支付二维码图片</p>
+                                <p align="center">
+
+                                        <Upload action="//jsonplaceholder.typicode.com/posts/">
+                                            <Button  type="ghost" icon="ios-cloud-upload-outline">点击图片文件压缩包（.zip）</Button>
+                                        </Upload>
+
+                                </p>
+
+                            </Card>
+                        </Col>
+                        <Col span="12" >
+                            <Card style="margin-left: 5px; height: 400px">
+                                <p slot="title">微信登陆</p>
+
+                            </Card>
+                        </Col>
+                    </Row>
+
+                </Card>
+            </Col>
+        </Row>
+<Row>
+    <Col span="24">
+
+    </Col>
+</Row>
+
+
+
+    </div>
+
+</template>
+
+<script>
+
+
+    import {mapState} from 'vuex'
+    import consts from '../../../libs/consts'
+    import Button from "iview/src/components/button/button";
+
+    export default {
+        components: {Button},
+        computed: {
+            ...mapState({
+                'qrcodeWx': state => state.qrcodeWx.qrcodeWx,
+
+
+            })
+        },
+        methods: {
+
+                ret() {
+                    this.$router.push({path: '/qrcode/wx'})
+                },
+
+
+
+        },
+        mounted() {
+            //页面加载时或数据方法
+            this.$store.commit('wxManager_set', {id:this.$route.params.id})
+
+
+        },
+        data() {
+            return {
+                merName: '',
+
+            }
+        }
+    }
+</script>
+<style lang="less">
+    @import '../../../styles/common.less';
+</style>

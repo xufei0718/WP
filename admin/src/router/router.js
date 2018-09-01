@@ -57,6 +57,7 @@ export const otherRouter = {
         { path: 'home', title: '控制中心', isCheck: 'no', name: 'home_index', component: resolve => { require(['@/views/home/home.vue'], resolve); } },
         { path: 'ownspace', title: '个人中心', isCheck: 'no', name: 'ownspace_index', component: resolve => { require(['@/views/own-space/own-space.vue'], resolve); } },
         { path: 'merCenter', title: '商户中心', isCheck: 'no', name: 'merCenter', component: resolve => { require(['@/views/own-space/merCenter.vue'], resolve); } },
+
     ]
 };
 
@@ -74,24 +75,9 @@ export const appRouter = [
             { path: 'user', title: '用户管理', isCheck: 'yes', name: 'admin_user', component: resolve => { require(['@/views/admin/user/main.vue'], resolve); } },
             { path: 'role', title: '角色管理', isCheck: 'yes', name: 'admin_role', component: resolve => { require(['@/views/admin/role/main.vue'], resolve); } },
             { path: 'tax', title: '分类管理', isCheck: 'yes', name: 'admin_tax', component: resolve => { require(['@/views/admin/taxonomy/main.vue'], resolve); } },
-           // { path: 'art', title: '文章管理', isCheck: 'yes', name: 'admin_art', component: resolve => { require(['@/views/admin/art/main.vue'], resolve); } },
-            // { path: 'artList', title: '文章列表', name: 'admin_artList', component: resolve => { require(['@/views/admin/art/list.vue'], resolve); } },
         ]
     },
- /*   {
-        path: '/cclear',
-        icon: 'calculator',
-        isCheck: 'yes',
-        name: 'collectionClear',
-        title: '清分管理',
-        component: Main,
-        children: [
-            { path: 'cla', title: '清分查询', isCheck: 'yes', name: 'collectionClear_cla', component: resolve => { require(['@/views/collection-clear/clearList_admin.vue'], resolve); } },
-            // { path: 'clc', title: '清分审批', isCheck: 'yes', name: 'collectionClear_clc', component: resolve => { require(['@/views/collection-clear/clearList_check.vue'], resolve); } },
-            { path: 'clm', title: '商户清分查询', isCheck: 'yes', name: 'collectionClear_clm', component: resolve => { require(['@/views/collection-clear/clearList_mer.vue'], resolve); } },
-            { path: 'debit', title: '出账处理', isCheck: 'yes', name: 'collectionClear_debit', component: resolve => { require(['@/views/collection-clear/debit.vue'], resolve); } },
-        ]
-    },*/
+
     {
         path: '/mer',
         icon: 'monitor',
@@ -119,31 +105,20 @@ export const appRouter = [
         ]
     },
     {
-        path: '/mer2',
+        path: '/qrcode',
         icon: 'monitor',
         isCheck: 'yes',
-        name: 'mer2',
-        title: '商户用户管理',
+        name: 'qrcode',
+        title: '微信管理',
         component: Main,
         children: [
-            { path: 'meruser', title: '商户用户管理', isCheck: 'yes', name: 'meruser', component: resolve => { require(['@/views/mer/user/main.vue'], resolve); } },
-
+            { path: 'wx', title: '微信账号管理', isCheck: 'yes', name: 'wx', component: resolve => { require(['@/views/qrcode/wx/main.vue'], resolve); }},
+            { path: 'info', title: '二维码管理', isCheck: 'yes', name: 'info', component: resolve => { require(['@/views/qrcode/info/main.vue'], resolve); } },
+            { path: 'wxManager/:id', title: '账号管理', isCheck: 'no', name: 'wxManager', component: resolve => { require(['@/views/qrcode/wx/manager.vue'], resolve); } },
         ]
     },
-/*    {
-        path: '/coll',
-        icon: 'monitor',
-        isCheck: 'no',
-        name: 'coll',
-        title: '代收交易管理',
-        component: Main,
-        children: [
-            { path: 'entrust', title: '委托管理', isCheck: 'yes', name: 'coll_entrust', component: resolve => { require(['@/views/coll/entrust/main.vue'], resolve); } },
-            { path: 'trade', title: '交易管理', isCheck: 'yes', name: 'coll_trade', component: resolve => { require(['@/views/coll/trade/main.vue'], resolve); } },
-            { path: 'batch', title: '批量交易管理', isCheck: 'yes', name: 'coll_batch_trade', component: resolve => { require(['@/views/coll/batch/main.vue'], resolve); } }
-            // { path: 'reconciliation', title: '对账管理', isCheck: 'yes', name: 'coll_reconciliation', component: resolve => { require(['@/views/coll/reconciliation/main.vue'], resolve); } }
-        ]
-    }*/
+
+
 ];
 
 // 所有上面定义的路由都要写在下面的routers里

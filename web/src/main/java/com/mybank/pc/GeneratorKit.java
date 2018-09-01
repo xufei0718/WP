@@ -22,12 +22,12 @@ public class GeneratorKit {
 	
 	public static void main(String[] args) {
 		// base model 所使用的包名
-		String baseModelPackageName = "com.mybank.pc.collection.model.base";
+		String baseModelPackageName = "com.mybank.pc.qrcode.model.base";
 		// base model 文件保存路径
-		String baseModelOutputDir = "C:/work/tmp/GeneratorClass/model/base";
+		String baseModelOutputDir = "C:/Users/Fly/Desktop/GeneratorClass/model/base";
 		
 		// model 所使用的包名 (MappingKit 默认使用的包名)
-		String modelPackageName = "com.mybank.pc.collection.model";
+		String modelPackageName = "com.mybank.pc.qrcode.model";
 		// model 文件保存路径 (MappingKit 与 DataDictionary 文件默认保存路径)
 		String modelOutputDir = baseModelOutputDir + "/..";
 		
