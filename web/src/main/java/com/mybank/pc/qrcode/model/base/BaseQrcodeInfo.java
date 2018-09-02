@@ -97,4 +97,12 @@ public abstract class BaseQrcodeInfo<M extends BaseQrcodeInfo<M>> extends Model<
 		return getStr("operID");
 	}
 
+	public void setWxAcct(String wxAcct) {
+		set("wxAcct", wxAcct);
+	}
+
+	public String getWxAcct() {
+		return getStr("wxAcct");
+	}
+
 }
