@@ -105,4 +105,11 @@ public abstract class BaseQrcodeInfo<M extends BaseQrcodeInfo<M>> extends Model<
 		return getStr("wxAcct");
 	}
 
+	public void setRealAmount(java.math.BigDecimal realAmount) {
+		set("realAmount", realAmount);
+	}
+
+	public java.math.BigDecimal getRealAmount() {
+		return get("realAmount");
+	}
 }

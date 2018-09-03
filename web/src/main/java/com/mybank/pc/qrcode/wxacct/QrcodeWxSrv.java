@@ -1,19 +1,12 @@
 package com.mybank.pc.qrcode.wxacct;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.jfinal.plugin.activerecord.Db;
-import com.jfinal.plugin.ehcache.CacheKit;
-import com.lowagie.text.*;
-import com.lowagie.text.Font;
-import com.lowagie.text.rtf.RtfWriter2;
 import com.mybank.pc.kits.ZipKit;
-import com.mybank.pc.merchant.model.MerchantInfo;
-import com.mybank.pc.merchant.model.MerchantUser;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
 import com.mybank.pc.qrcode.model.QrcodeWxacct;
 import org.apache.commons.lang.StringUtils;
 
-import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
@@ -42,6 +35,11 @@ public class QrcodeWxSrv {
             int readLength = 0;//每次读出来的长度
 
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+                System.out.println(zipEntry.getName());
+                if("__MACOSX".equals(zipEntry.getName().split("/")[0])){
+                    continue;//跳出
+                }
+
                 if (zipEntry.isDirectory()) {//若是zip条目目录，则需创建这个目录
                     File dir = new File(dstPath + "/" + zipEntry.getName());
                     if (!dir.exists()) {
@@ -62,7 +60,7 @@ public class QrcodeWxSrv {
                 outputStream.close();
                 //写入数据库
                 saveQrCode(file.getName(),qw);
-                System.out.println("file uncompressed: " + file.getCanonicalPath());
+                //System.out.println("file uncompressed: " + file.getCanonicalPath());
             }    // end while
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
@@ -93,18 +91,21 @@ public class QrcodeWxSrv {
         if (StringUtils.isEmpty(fileName)){
           return false;
         }
-        String[] s =fileName.split("\\.");
-        String[] s1 =s[0].split("_");
-        String qrcodeNo =s1[0];
-        BigDecimal amount =new BigDecimal( Integer.valueOf(s1[1])/100);
+        String name =fileName.split("\\.")[0];
 
-        QrcodeInfo qitemp = QrcodeInfo.dao.findFirst("select * from qrcode_info qi where qi.qrcodeNo= '"+qrcodeNo+"'");
+
+        BigDecimal realAmount =new BigDecimal(name).divide(new BigDecimal(100),2,BigDecimal.ROUND_DOWN);
+        System.out.println(realAmount);
+        //计算交易金额
+        BigDecimal amount = realAmount.setScale( 0, BigDecimal.ROUND_UP ); // 向上取整
+
+        QrcodeInfo qitemp = QrcodeInfo.dao.findFirst("select * from qrcode_info qi where qi.realAmount= "+realAmount+" and qi.wxAcct='"+qw.getWxAcct()+"' and qi.dat is null");
 
         if (ObjectUtil.isNull(qitemp)){
             QrcodeInfo qi = new QrcodeInfo();
             qi.setWxAcctID(qw.getId());
-            qi.setQrcodeNo(s1[0]);
             qi.setAmount(amount);
+            qi.setRealAmount(realAmount);
             qi.setIsLock("0");
             qi.setIsVail("0");
             qi.setImgName(fileName);
@@ -112,11 +113,25 @@ public class QrcodeWxSrv {
             qi.setCat(new Date());
             qi.save();
         }else{
-            qitemp.setAmount(amount);
             qitemp.setImgName(fileName);
+            qitemp.setMat(new Date());
             qitemp.update();
         }
 
         return true;
+    }
+
+    public static void main(String[] args) {
+        String dir = "/Users/xufei/Desktop/img/";
+        Integer name = 900;
+        String h = ".jpeg";
+        File imgSrc = new File(dir + name+h);
+        Integer imgName= name;
+        for (int i=0; i<100;i++){
+            imgName+=1;
+            File img = new File(dir + imgName+h);
+            FileUtil.copy(imgSrc, img, true);
+        }
+
     }
 }

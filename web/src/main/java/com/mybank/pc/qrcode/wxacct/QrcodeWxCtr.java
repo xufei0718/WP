@@ -1,42 +1,14 @@
 package com.mybank.pc.qrcode.wxacct;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.StrUtil;
-import com.jfinal.aop.Before;
-import com.jfinal.kit.Kv;
-import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
-import com.jfinal.plugin.activerecord.tx.Tx;
-import com.jfinal.plugin.ehcache.CacheKit;
 import com.jfinal.upload.UploadFile;
-import com.mybank.pc.CMNSrv;
-import com.mybank.pc.Consts;
-import com.mybank.pc.admin.model.Role;
-import com.mybank.pc.admin.model.Taxonomy;
-import com.mybank.pc.admin.model.User;
-import com.mybank.pc.admin.model.UserRole;
 import com.mybank.pc.core.CoreController;
-import com.mybank.pc.kits.DateKit;
-import com.mybank.pc.kits.FileKit;
 import com.mybank.pc.kits.ResKit;
-import com.mybank.pc.kits.ext.BCrypt;
-import com.mybank.pc.merchant.info.MerchantInfoValidator;
-import com.mybank.pc.merchant.model.MerchantFee;
-import com.mybank.pc.merchant.model.MerchantFeeAmountRecord;
-import com.mybank.pc.merchant.model.MerchantInfo;
-import com.mybank.pc.merchant.model.MerchantUser;
 import com.mybank.pc.qrcode.model.QrcodeWxacct;
-import sun.org.mozilla.javascript.internal.ast.TryStatement;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -106,4 +78,6 @@ public class QrcodeWxCtr extends CoreController {
 
 
     }
+
+
 }
