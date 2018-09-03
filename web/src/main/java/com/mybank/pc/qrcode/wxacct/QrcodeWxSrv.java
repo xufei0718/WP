@@ -2,6 +2,7 @@ package com.mybank.pc.qrcode.wxacct;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.jfinal.kit.LogKit;
 import com.mybank.pc.kits.ZipKit;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
 import com.mybank.pc.qrcode.model.QrcodeWxacct;
@@ -25,17 +26,25 @@ public class QrcodeWxSrv {
 
     public boolean unzip(String zipFileName, String dstPath, QrcodeWxacct qw) {
 
-        System.out.println("zip uncompressing...");
+        LogKit.info("zip uncompressing...");
         ZipInputStream zipInputStream = null;
 
         try {
+            //将文件路径后增加微信账号文件夹
+            dstPath = dstPath+ "/"+qw.getWxAcct();
+            File dirWx = new File(dstPath);
+            //如果没有此文件夹则创建
+            if (!dirWx.exists()) {
+                dirWx.mkdirs();
+                LogKit.info("mkdirs: " + dirWx.getCanonicalPath());
+            }
+
             zipInputStream = new ZipInputStream(new FileInputStream(zipFileName), Charset.forName("GBK"));
             ZipEntry zipEntry = null;
             byte[] buffer = new byte[ZipKit.BUFFER];//缓冲器
             int readLength = 0;//每次读出来的长度
 
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                System.out.println(zipEntry.getName());
                 if("__MACOSX".equals(zipEntry.getName().split("/")[0])){
                     continue;//跳出
                 }
@@ -44,7 +53,7 @@ public class QrcodeWxSrv {
                     File dir = new File(dstPath + "/" + zipEntry.getName());
                     if (!dir.exists()) {
                         dir.mkdirs();
-                        System.out.println("mkdirs: " + dir.getCanonicalPath());
+                        LogKit.info("mkdirs: " + dir.getCanonicalPath());
                         continue;//跳出
                     }
                 }
@@ -53,24 +62,23 @@ public class QrcodeWxSrv {
                 File file = ZipKit.createFile(dstPath, zipEntry.getName());//若是文件，则需创建该文件
                 //System.out.println("file created: " + file.getCanonicalPath());
                 OutputStream outputStream = new FileOutputStream(file);
-
                 while ((readLength = zipInputStream.read(buffer, 0, ZipKit.BUFFER)) != -1) {
                     outputStream.write(buffer, 0, readLength);
                 }
                 outputStream.close();
-                //写入数据库
+                //保存二维码图片相关信息
                 saveQrCode(file.getName(),qw);
-                //System.out.println("file uncompressed: " + file.getCanonicalPath());
+              LogKit.debug("file uncompressed: " + file.getName());
             }    // end while
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
+            LogKit.info(e.getMessage());
             e.printStackTrace();
-            System.out.println("unzip fail!");
+            LogKit.info("unzip fail!");
             return false;
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            LogKit.info(e.getMessage());
             e.printStackTrace();
-            System.out.println("unzip fail!");
+            LogKit.info("unzip fail!");
             return false;
         } finally {
             if (zipInputStream != null) {
@@ -83,7 +91,7 @@ public class QrcodeWxSrv {
 
         }
 
-        System.out.println("unzip success!");
+     LogKit.info("unzip success!");
         return true;
     }
 
@@ -95,7 +103,7 @@ public class QrcodeWxSrv {
 
 
         BigDecimal realAmount =new BigDecimal(name).divide(new BigDecimal(100),2,BigDecimal.ROUND_DOWN);
-        System.out.println(realAmount);
+        //System.out.println(realAmount);
         //计算交易金额
         BigDecimal amount = realAmount.setScale( 0, BigDecimal.ROUND_UP ); // 向上取整
 
@@ -122,9 +130,9 @@ public class QrcodeWxSrv {
     }
 
     public static void main(String[] args) {
-        String dir = "/Users/xufei/Desktop/img/";
-        Integer name = 900;
-        String h = ".jpeg";
+        String dir = "C:/Users/Fly/Desktop/img/";
+        Integer name = 1000;
+        String h = ".jpg";
         File imgSrc = new File(dir + name+h);
         Integer imgName= name;
         for (int i=0; i<100;i++){

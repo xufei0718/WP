@@ -1,13 +1,17 @@
 package com.mybank.pc.qrcode.wxacct;
 
 import cn.hutool.core.io.FileUtil;
+import com.jfinal.aop.Before;
 import com.jfinal.plugin.activerecord.Page;
+import com.jfinal.plugin.activerecord.tx.Tx;
 import com.jfinal.upload.UploadFile;
 import com.mybank.pc.core.CoreController;
 import com.mybank.pc.kits.ResKit;
 import com.mybank.pc.qrcode.model.QrcodeWxacct;
 
 import java.io.File;
+import java.math.BigInteger;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +41,31 @@ public class QrcodeWxCtr extends CoreController {
         Map map = new HashMap();
         map.put("page",page);
         renderJson(map);
+
+    }
+
+    /**
+     * 新增微信账号
+     */
+    @Before({QrcodeWxValidator.class, Tx.class})
+    public void save() {
+        QrcodeWxacct qrcodeWxacct = getModel(QrcodeWxacct.class,"",true);
+        qrcodeWxacct.setCat(new Date());
+        qrcodeWxacct.setIsLogin("1");
+        qrcodeWxacct.save();
+        renderSuccessJSON("新增微信账号成功。", "");
+    }
+
+    /**
+     * 删除微信账号
+     */
+    @Before({Tx.class})
+    public void del(){
+        int id=getParaToInt("id");
+        QrcodeWxacct qrcodeWxacct=QrcodeWxacct.dao.findById(id);
+        qrcodeWxacct.setDat(new Date());
+        qrcodeWxacct.update();
+        renderSuccessJSON("删除微信账号成功。");
 
     }
     /**

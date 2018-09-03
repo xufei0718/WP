@@ -37,6 +37,7 @@ import com.mybank.pc.kits.ResKit;
 import com.mybank.pc.merchant.cust.MerchantCustCtr;
 import com.mybank.pc.merchant.info.MerchantInfoCtr;
 import com.mybank.pc.merchant.user.MerchantUserCtr;
+import com.mybank.pc.qrcode.info.QrcodeInfoCtr;
 import com.mybank.pc.qrcode.wxacct.QrcodeWxCtr;
 import org.slf4j.LoggerFactory;
 
@@ -127,6 +128,12 @@ public class CoreConfig extends JFinalConfig {
 				add("/qr00", QrcodeWxCtr.class);
 			}
 		});
+		routes.add(new Routes() {
+			@Override
+			public void config() {
+				add("/qr01", QrcodeInfoCtr.class);
+			}
+		});
 		// 清分模块路由
 
 		routes.add(new Routes() {
@@ -173,7 +180,7 @@ public class CoreConfig extends JFinalConfig {
 		arp.getEngine().addSharedMethod(new StrUtil());
 		arp.setBaseSqlTemplatePath(PathKit.getRootClassPath() + "/sql");
 		arp.addSqlTemplate("all.sql");
-		arp.setShowSql(ResKit.getConfigBoolean("devMode")?true:false);
+		arp.setShowSql(ResKit.getConfigBoolean("showSql")?true:false);
 		plugins.add(arp);
 		// 开启eheache缓存
 		plugins.add(new EhCachePlugin());
