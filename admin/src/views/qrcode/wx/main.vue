@@ -8,10 +8,10 @@
                         微信账号列表
                     </p>
                     <Row>
-                        <Col span="8">
+                        <Col span="12">
                             <Button type="primary" icon="person-add" @click="add">新增微信账号</Button>
                         </Col>
-                        <Col span="8" offset="8" align="right">
+                        <Col span="12" align="right">
                             <Input v-model="searchKey" placeholder="请输入微信账号" style="width: 200px"/>
                             <span @click="search">
                         <Button type="primary" icon="search">搜索</Button></span>

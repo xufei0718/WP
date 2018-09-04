@@ -4,6 +4,7 @@ import kit from '../../libs/kit';
 const qrcodeWx = {
     state: {
         qrcodeWxList:[],
+        qrcodeAmountList:[],
         totalPage:0,
         pageNumber:1,
         pageSize:15,
@@ -35,13 +36,22 @@ const qrcodeWx = {
             }
         },
 
+        set_qrcodeAmount_list(state,page){
+            state.qrcodeAmountList=page.page.list
+            state.totalPage=page.page.totalPage
+            state.pageSize=page.page.pageSize
+            state.pageNumber=page.page.pageNumber
+            state.totalRow=page.page.totalRow
+
+        },
+
     },
     actions:{
         qrcodeWx_list:function ({ commit,state },param) {
             if(param&&!param.pn){
                 param.pn=state.pageNumber;
             }
-            console.info(param)
+
             this._vm.$axios.post('/qr00/list',param).then((res)=>{
                 commit('set_qrcodeWx_list',res)
             });
@@ -57,6 +67,16 @@ const qrcodeWx = {
                     // }
                     resolve(res.resCode);
                 });
+            });
+        },
+
+        qrcodeAmount_list:function ({ commit,state },param) {
+            if(param&&!param.pn){
+                param.pn=state.pageNumber;
+            }
+
+            this._vm.$axios.post('/qr01/list',param).then((res)=>{
+                commit('set_qrcodeAmount_list',res)
             });
         },
     }
