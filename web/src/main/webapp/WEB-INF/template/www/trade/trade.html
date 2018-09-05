@@ -91,15 +91,16 @@
             <label>交易金额</label>
             <input type="text" id ="tradeAmount" class="form-control" placeholder="金额" name="tradeAmount" value="10">
         </div>
-
-
-
-
-
-
-
-
         <div id="sendCodeTxt" style="margin-bottom: 10px"></div>
+        <div class="form-group">
+            <img id ="images" src="" width="300px"/>
+        </div>
+
+
+
+
+
+
         <button id="sendCode" type="button" class="btn btn-lg btn-primary btn-block " >发起交易</button>
     </form>
 </div> <!-- /container -->
@@ -110,7 +111,7 @@
     //按钮单击时执行
     $("#sendCode").click(function(){
         var tradeAmount=$("#tradeAmount").val();
-
+        $("#images").attr("src","");
         if(tradeAmount==''){
             $("#tradeAmount").focus();
             alert("请输入金额")
@@ -118,13 +119,19 @@
             return false;
         }
 
-        $.post("http://localhost:8082/tt00/exeTradeQrcode",{tradeAmount:tradeAmount}, function(data) {
+        $.post("http://localhost:8082/tt00/exeTradeQrcode",{tradeAmount:tradeAmount,merNo:'100026'}, function(data) {
+            console.info(data);
+            if(data.resCode=='0'){
+                $("#images").attr("src", "data:image/gif;base64," + data.imgData);
+                $("#sendCodeTxt").html("<font color='#339933'>响应码："+data.resCode+" <br/>响应信息："+data.resMsg+" <br/>交易流水号："+data.tradeNo+"</font>");
+            }else{
+                $("#sendCodeTxt").html("<font color='red'>响应码："+data.resCode+" <br/>响应信息："+data.resMsg+"</font>");
+            }
 
-                $("#sendCodeTxt").html("<font color='#339933'>后台接收的的交易金额为：</font>"+data);
 
         })
             .fail(function() {
-            $("#sendCodeTxt").html("<font color='red'>交易接收失败</font>");
+            $("#sendCodeTxt").html("<font color='red'>交易图片获取失败</font>");
             });
     });
 
