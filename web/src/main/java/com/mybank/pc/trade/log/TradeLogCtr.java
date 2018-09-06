@@ -10,6 +10,7 @@ import com.mybank.pc.interceptors.AdminIAuthInterceptor;
 import com.mybank.pc.kits.ResKit;
 import com.mybank.pc.merchant.model.MerchantInfo;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
+import com.mybank.pc.qrcode.model.QrcodeWxacct;
 import com.mybank.pc.trade.model.TradeLog;
 import org.apache.commons.codec.binary.Base64;
 
@@ -33,7 +34,20 @@ public class TradeLogCtr extends CoreController {
      */
     public void list() {
 
-
+        Page<TradeLog> page;
+        String serach = getPara("search");
+        StringBuffer where = new StringBuffer("from trade_log tt where 1=1 and tt.dat is null  ");
+        if (!isParaBlank("search")) {
+            where.append(" and (instr(tt.tradeNo,?)>0 or instr(tt.tradeMerNo,?)>0) ");
+            where.append(" ORDER BY tt.cat desc");
+            page = TradeLog.dao.paginate(getPN(), getPS(), "select * ", where.toString(), serach,serach );
+        } else {
+            where.append(" ORDER BY tt.cat desc");
+            page = TradeLog.dao.paginate(getPN(), getPS(), "select * ", where.toString());
+        }
+        Map map = new HashMap();
+        map.put("page",page);
+        renderJson(map);
     }
 
     /**
@@ -53,7 +67,7 @@ public class TradeLogCtr extends CoreController {
             String merNo = getPara("merNo");
             String callBackUrl = getPara("callBackUrl");
             LogKit.info(tradeAmount);
-            String sql = "select * from qrcode_info qi where  qi.amount=" + tradeAmount + " and qi.isLock='0' and qi.isVail='0' and qi.dat is null";
+            String sql = "select * from qrcode_info qi where  qi.amount=" + tradeAmount + " and qi.isLock='0' and qi.isVail='0' and qi.dat is null order by qi.realAmount desc";
             QrcodeInfo qrcodeInfo = QrcodeInfo.dao.findFirst(sql);
 
             String sqlMer = "select * from merchant_info mi where mi.merchantNo='" + merNo + "'";
@@ -63,12 +77,14 @@ public class TradeLogCtr extends CoreController {
                 resMap.put("resCode", "3");
                 resMap.put("resMsg", "商户信息不存在");
                 renderJson(resMap);
+                return;
             }
             if (ObjectUtil.isNull(qrcodeInfo)) {
                 LogKit.info("未找到可用二维码图片");
                 resMap.put("resCode", "2");
                 resMap.put("resMsg", "未找到可用二维码图片");
                 renderJson(resMap);
+                return;
             }
             //读取本地图片输入流
             String imgPath = ResKit.getConfig("qrcode.img.path");

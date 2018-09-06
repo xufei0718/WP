@@ -117,6 +117,19 @@ export const appRouter = [
             { path: 'wxManager/:id', title: '账号管理', isCheck: 'no', name: 'wxManager', component: resolve => { require(['@/views/qrcode/wx/manager.vue'], resolve); } },
         ]
     },
+    {
+        path: '/trade',
+        icon: 'monitor',
+        isCheck: 'yes',
+        name: 'trade',
+        title: '交易管理',
+        component: Main,
+        children: [
+            { path: 'wx', title: '交易查询', isCheck: 'yes', name: 'log', component: resolve => { require(['@/views/trade/log/main.vue'], resolve); }},
+
+
+        ]
+    },
 
 
 ];

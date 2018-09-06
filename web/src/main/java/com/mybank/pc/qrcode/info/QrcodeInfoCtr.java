@@ -37,9 +37,10 @@ public class QrcodeInfoCtr extends CoreController {
         StringBuffer sql = new StringBuffer(
                 "select qi.amount as amount, " +
                 "count(qi.amount) as amountCount, " +
-                "(select count(q.isLock) from qrcode_info q where q.amount=qi.amount and q.isLock='0' and q.dat is NULL) as lockCount, " +
-                "(select count(q.isLock) from qrcode_info q where q.amount=qi.amount and q.isVail='0' and q.dat is NULL) as vailCount " +
-                "from qrcode_info qi where 1=1 and qi.dat is null  GROUP BY qi.amount "
+                "(select count(q.isLock) from qrcode_info q where q.amount=qi.amount and q.isLock='1' and q.dat is NULL) as lockCount, " +
+                "(select count(q.isLock) from qrcode_info q where q.amount=qi.amount and q.isVail='1' and q.dat is NULL) as vailCount, " +
+                "(select count(q.isLock) from qrcode_info q where q.amount=qi.amount and q.isVail='0' and q.isLock='0'  and  q.dat is NULL) as grrCount " +
+                "from qrcode_info qi where 1=1 and qi.dat is null  GROUP BY qi.amount  ORDER BY grrCount asc"
         );
         page=Db.paginate(getPN(),getPS(),sql.toString(),"");
         Map map = new HashMap();

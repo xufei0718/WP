@@ -11,6 +11,7 @@ const qrcodeWx = {
         totalRow:0,
         qrcodeWx:{},
         isOper:false,
+        qrCount:0,
     },
     mutations: {
         set_qrcodeWx_list(state,page){
@@ -28,10 +29,11 @@ const qrcodeWx = {
         },
 
         wxManager_set(state,param){
-            console.info(param)
+
             if(param) {
                 this._vm.$axios.post('/qr00/info',param).then((res)=>{
                     state.qrcodeWx =res.qrcodeWxacct
+                    state.qrCount = res.qrCount
                 });
             }
         },
@@ -67,6 +69,15 @@ const qrcodeWx = {
                     // }
                     resolve(res.resCode);
                 });
+            });
+        },
+
+        qrcodeWx_del:function({commit,state},param){
+            let vm=this._vm;
+            return new Promise(function (resolve, reject) {
+                vm.$axios.post('/qr00/del', param).then((res) => {
+                    resolve(res.resCode)
+                })
             });
         },
 

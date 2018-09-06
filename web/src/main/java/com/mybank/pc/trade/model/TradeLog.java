@@ -1,6 +1,7 @@
 package com.mybank.pc.trade.model;
 
 
+import com.mybank.pc.kits.DateKit;
 import com.mybank.pc.trade.model.base.BaseTradeLog;
 
 /**
@@ -9,4 +10,27 @@ import com.mybank.pc.trade.model.base.BaseTradeLog;
 @SuppressWarnings("serial")
 public class TradeLog extends BaseTradeLog<TradeLog> {
 	public static final TradeLog dao = new TradeLog().dao();
+	public String getTradeStatusTxt(){
+		String sts = getTradeStatus();
+		if(sts==null)return "";
+		if("0".equals(sts)){
+			return "交易成功";
+		}
+		else if("1".equals(sts)){
+			return "交易已发起";
+		}else if("2".equals(sts)){
+			return "交易失败";
+		} else {
+			return "";
+		}
+
+
+	}
+
+	public String getCatTxt(){
+		return DateKit.dateToStr(getCat(),DateKit.STR_DATEFORMATE);
+	}
+	public String getTradeTimeTxt(){
+		return DateKit.dateToStr(getTradeTime(),DateKit.STR_DATEFORMATE);
+	}
 }

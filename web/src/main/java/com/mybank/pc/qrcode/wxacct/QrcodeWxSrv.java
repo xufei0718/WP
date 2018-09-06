@@ -24,11 +24,11 @@ public class QrcodeWxSrv {
      * @return
      */
 
-    public boolean unzip(String zipFileName, String dstPath, QrcodeWxacct qw) {
+    public int unzip(String zipFileName, String dstPath, QrcodeWxacct qw) {
 
         LogKit.info("zip uncompressing...");
         ZipInputStream zipInputStream = null;
-
+        int fileCount = 0;
         try {
             //将文件路径后增加微信账号文件夹
             dstPath = dstPath+ "/"+qw.getWxAcct();
@@ -68,18 +68,19 @@ public class QrcodeWxSrv {
                 outputStream.close();
                 //保存二维码图片相关信息
                 saveQrCode(file.getName(),qw);
+                fileCount+=1;
               LogKit.debug("file uncompressed: " + file.getName());
             }    // end while
         } catch (FileNotFoundException e) {
             LogKit.info(e.getMessage());
             e.printStackTrace();
             LogKit.info("unzip fail!");
-            return false;
+            return 0;
         } catch (IOException e) {
             LogKit.info(e.getMessage());
             e.printStackTrace();
             LogKit.info("unzip fail!");
-            return false;
+            return 0;
         } finally {
             if (zipInputStream != null) {
                 try {
@@ -92,7 +93,7 @@ public class QrcodeWxSrv {
         }
 
      LogKit.info("unzip success!");
-        return true;
+        return fileCount;
     }
 
     public boolean saveQrCode(String fileName,QrcodeWxacct qw){
@@ -136,7 +137,7 @@ public class QrcodeWxSrv {
         File imgSrc = new File(dir + name+h);
         Integer imgName= name;
         for (int i=0; i<100;i++){
-            imgName+=1;
+            imgName+=10;
             File img = new File(dir + imgName+h);
             FileUtil.copy(imgSrc, img, true);
         }

@@ -114,17 +114,21 @@
                         align: 'center',
                     },
                     {
-                        title: '有效数量（个）',
-                        key: 'vailCount',
+                        title: '可用数量（个）',
+                        key: 'grrCount',
                         align: 'center',
                     },
                     {
-                        title: '未锁定数量（个）',
+                        title: '已锁定数量（个）',
                         key: 'lockCount',
                         align: 'center',
                     },
-
                     {
+                        title: '失效数量（微信账号登陆后可恢复）',
+                        key: 'vailCount',
+                        align: 'center',
+                    },
+                    /*{
                         title: '操作',
                         key: 'action',
                         width: 150,
@@ -139,7 +143,7 @@
 
                             }
                         }
-                    }
+                    }*/
 
                 ]
             }

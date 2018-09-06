@@ -24,6 +24,7 @@ import unionpayEntrust from './modules/unionpay_entrust';
 import unionpayCollection from './modules/unionpay_collection';
 import merUser from './modules/merUser';
 import qrcodeWx from './modules/qrcodeWx';
+import tradeLog from './modules/tradeLog';
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
@@ -68,7 +69,8 @@ const store = new Vuex.Store({
         unionpayEntrust,
         unionpayCollection,
         merUser,
-        qrcodeWx
+        qrcodeWx,
+        tradeLog
     }
 });
 
