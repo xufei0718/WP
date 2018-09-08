@@ -135,8 +135,7 @@ public class TradeLogCtr extends CoreController {
             String callBackUrl = getPara("callBackUrl");
             LogKit.info(tradeAmount);
 
-            String sql = "select * from qrcode_info qi where  qi.amount=" + tradeAmount + " and qi.isLock='0' and qi.isVail='0' and qi.dat is null order by qi.realAmount desc";
-            QrcodeInfo qrcodeInfo = QrcodeInfo.dao.findFirst(sql);
+
 
             String sqlMer = "select * from merchant_info mi where mi.merchantNo='" + merNo + "'";
             MerchantInfo merchantInfo = MerchantInfo.dao.findFirst(sqlMer);
@@ -161,46 +160,21 @@ public class TradeLogCtr extends CoreController {
                 renderJson(resMap);
                 return;
             }
-            if (ObjectUtil.isNull(qrcodeInfo)) {
-                LogKit.info("未找到可用二维码图片");
-                resMap.put("resCode", "2");
-                resMap.put("resMsg", "未找到可用二维码图片");
-                renderJson(resMap);
-                return;
+
+            QrcodeInfo qrcodeInfo =     tradeLogSrv.getQrcodeAndSaveTradeLog(resMap,tradeAmount,callBackUrl,merchantInfo);
+
+            if (ObjectUtil.isNotNull(qrcodeInfo)){
+                //如果正确获取二维码记录，并保存交易日志，读取本地图片输入流
+                String imgPath = ResKit.getConfig("qrcode.img.path");
+                inputStream = new FileInputStream(imgPath + "/" + qrcodeInfo.getWxAcct() + "/" + qrcodeInfo.getImgName());
+
+                //byte数组用于存放图片字节数据
+                byte[] buff = new byte[inputStream.available()];
+                inputStream.read(buff);
+                resMap.put("imgData", new String(Base64.encodeBase64(buff)));
             }
-            //读取本地图片输入流
-            String imgPath = ResKit.getConfig("qrcode.img.path");
-            inputStream = new FileInputStream(imgPath + "/" + qrcodeInfo.getWxAcct() + "/" + qrcodeInfo.getImgName());
-
-            //byte数组用于存放图片字节数据
-            byte[] buff = new byte[inputStream.available()];
-            inputStream.read(buff);
-            String tradeNo = tradeLogSrv.createTradeNo();
-            TradeLog tradeLog = new TradeLog();
-            tradeLog.setTradeNo(tradeNo);
-            tradeLog.setTradeMerID(merchantInfo.getId());
-            tradeLog.setTradeMerNo(merchantInfo.getMerchantNo());
-            tradeLog.setTradeMerName(merchantInfo.getMerchantName());
-            tradeLog.setTradeAmount(new BigDecimal(tradeAmount));
-            tradeLog.setTradeRealAmount(qrcodeInfo.getRealAmount());
-            tradeLog.setTradeWxAcct(qrcodeInfo.getWxAcct());
-            tradeLog.setTradeQrcodeImg(qrcodeInfo.getImgName());
-            tradeLog.setTradeStatus("1");//1:二维码获取成功，交易已发起，0：已支付成功
-            tradeLog.setTradeTime(new Date());
-            tradeLog.setCat(new Date());
-            tradeLog.setCallBackUrl(callBackUrl == null ? "" : callBackUrl);
-            tradeLog.save();
-            //更新二维码图片状态
-            qrcodeInfo.setIsLock("1");//设置为已锁定
-            qrcodeInfo.setMat(new Date());
-            qrcodeInfo.update();
 
 
-            resMap.put("tradeNo", tradeNo);
-            resMap.put("tradeRealAmount",  tradeLog.getTradeRealAmount());
-            resMap.put("imgData", new String(Base64.encodeBase64(buff)));
-            resMap.put("resCode", "0");
-            resMap.put("resMsg", "交易图片获取成功");
             renderJson(resMap);
         } catch (Exception e) {
             e.printStackTrace();

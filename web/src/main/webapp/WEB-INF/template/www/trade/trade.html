@@ -98,15 +98,15 @@
             <img id ="images" src="" width="300px"/>
         </div>
 
-        <button id="sendCode" type="button" class="btn btn-lg btn-primary btn-block " >发起交易</button>
-        <button id="tradeNotify" type="button" class="btn btn-lg btn-primary btn-block " >发送交易通知</button>
+        <button id="sendCode" type="button" class="btn btn-lg btn-primary btn-block " >发起交易，获取二维码</button>
+        <button id="tradeNotify" type="button" class="btn btn-lg btn-primary btn-block " >发送交易成功通知</button>
         <div id="tradeResultTxt" style="margin-bottom: 10px"></div>
     </form>
 </div> <!-- /container -->
 
 
 <script type="text/javascript">
-
+    var c;
     //按钮单击时执行
     $("#sendCode").click(function(){
         var tradeAmount=$("#tradeAmount").val();
@@ -125,7 +125,7 @@
                 $("#sendCodeTxt").html("<font color='#339933'>响应码："+data.resCode+" <br/>响应信息："+data.resMsg+" <br/>交易流水号："+data.tradeNo+"</font>");
                 $("#tradeNo").attr("value",data.tradeNo);
                 $("#tradeRealAmount").attr("value",data.tradeRealAmount);
-
+                c=  setInterval("test()",2000);
             }else{
                 $("#sendCodeTxt").html("<font color='red'>响应码："+data.resCode+" <br/>响应信息："+data.resMsg+"</font>");
             }
@@ -142,7 +142,7 @@
     $("#tradeNotify").click(function(){
         var tradeRealAmount=$("#tradeRealAmount").val();
         $.post("http://localhost:8082/tt00/tradeNotify",{wxCode:"test_wx_acct_01",payAmount:tradeRealAmount}, function(data) {
-            console.info("交易通知发起"+data);
+            console.info("交易成功通知已发送");
         });
     });
 
@@ -155,13 +155,12 @@
             }
         }
     }
-    var c= setInterval("test()",2000);
+
     function test(tradeNo){//用这个函数测试吧
         tradeNo =   $("#tradeNo").val();
-        console.info("查询执行："+tradeNo);
-
-
+            console.info("查询执行：")
             $.post("http://localhost:8082/tt00/tradeResult",{tradeNo:tradeNo}, function(data) {
+
                 console.info(data);
 
                 if(data.tradeStatus=="0"){
