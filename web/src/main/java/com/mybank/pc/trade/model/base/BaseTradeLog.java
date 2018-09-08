@@ -160,5 +160,13 @@ public abstract class BaseTradeLog<M extends BaseTradeLog<M>> extends Model<M> i
 	public String getRemark() {
 		return getStr("remark");
 	}
+	public void setTradeImgName(String tradeImgName) {
+		set("tradeImgName", tradeImgName);
+	}
+
+	public String getTradeImgName() {
+		return getStr("tradeImgName");
+	}
+
 
 }

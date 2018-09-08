@@ -10,18 +10,12 @@ import com.jfinal.upload.UploadFile;
 import com.mybank.pc.core.CoreController;
 import com.mybank.pc.core.CoreException;
 import com.mybank.pc.interceptors.AdminIAuthInterceptor;
-import com.mybank.pc.kits.AppKit;
-import com.mybank.pc.kits.DateKit;
-import com.mybank.pc.kits.QiNiuKit;
-import com.mybank.pc.kits._StrKit;
+import com.mybank.pc.kits.*;
 import com.mybank.pc.merchant.info.MerchantInfoSrv;
 import com.qiniu.common.QiniuException;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Date;
 
 /**
@@ -226,7 +220,44 @@ public class CMNCtr extends CoreController {
         }
 
     }
+    @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
+    public void act07() {
+        String tradeImgName = getPara("tradeImgName");
+        //读取本地图片输入流
+        FileInputStream fis = null;
+        OutputStream out = null;
 
+        try {
+            String tradeImgPath = ResKit.getConfig("trade.img.path");
+            fis =  new FileInputStream(tradeImgPath + tradeImgName );
+            getResponse().setContentType("image/jpeg");
+            out = getResponse().getOutputStream();
+            IoUtil.copy(fis, out);
+            out.flush();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            renderNull();
+        }
+
+
+    }
 
 
 }

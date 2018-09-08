@@ -9,6 +9,7 @@ const tradeLog = {
         pageSize:15,
         totalRow:0,
         tradeLog:{},
+        merAmount:'',
         isOper:false,
 
     },
@@ -19,9 +20,14 @@ const tradeLog = {
             state.pageSize=page.page.pageSize
             state.pageNumber=page.page.pageNumber
             state.totalRow=page.page.totalRow
+            state.merAmount=page.merAmount
 
         },
-
+        tradeLog_reset(state,param){
+            if(param) {
+                state.tradeLog = kit.clone(param)
+            }
+        },
 
 
     },
@@ -36,6 +42,19 @@ const tradeLog = {
             });
         },
 
+
+        tradeLog_saveTrade:function ({ commit,state }) {
+            let vm=this._vm;
+            let p=kit.clone(state.tradeLog)
+            return new Promise(function (resolve, reject) {
+                vm.$axios.post('/tt00/saveTrade', p).then((res) => {
+                    // if(res.resCode&&res.resCode=='success'){
+                    //     commit('user_reset');
+                    // }
+                    resolve(res.resCode);
+                });
+            });
+        },
 
     }
 };

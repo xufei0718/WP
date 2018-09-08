@@ -8,10 +8,10 @@
                         交易列表
                     </p>
                     <Row>
-
-                        <Col span="24" align="right">
-                            <Input v-model="searchKey" placeholder="请输入交易流水号\商户编号" style="width: 200px"/>
-                            <Input v-model="searchWxAcct" placeholder="请输入微信收款账号" style="width: 200px"/>
+                        <Col span="8" align="left">
+                            <span style="font-size: 18px;  vertical-align: middle; padding-left: 10px"> 商户账户余额：{{merAmount}} 元</span>
+                        </Col>
+                        <Col span="16" align="right">
                             <Input v-model="searchAmount" placeholder="请输入实付金额" style="width: 200px"/>
                             <DatePicker @on-change="setSearchDate"  type="daterange" placement="bottom-end" placeholder="请选择时间范围" style="width: 200px"></DatePicker>
 
@@ -106,6 +106,7 @@
                 'pageSize': state => state.tradeLog.pageSize,
                 'total': state => state.tradeLog.totalRow,
                 'tradeLog': state => state.tradeLog.tradeLog,
+                'merAmount': state => state.tradeLog.merAmount,
 
             })
         },
@@ -229,12 +230,6 @@
                         key: 'tradeRealAmount',
                         align: 'center',
                     },
-                    {
-                        title: '收款微信账号',
-                        key: 'tradeWxAcct',
-                        align: 'center',
-                    },
-
 
                     {
                         title: '交易时间',
@@ -272,22 +267,7 @@
                             }
                         }
                     },
-                    {
-                        title: '操作',
-                        key: 'action',
-                        width: 150,
-                        align: 'center',
-                        render: (h, param) => {
-                            if (param.row.tradeStatus=='1') {
-                                return h('div', [
-                                    uploadBtn(this, h, param),
-                                ]);
 
-
-
-                            }
-                        }
-                    }
                 ]
             }
         }

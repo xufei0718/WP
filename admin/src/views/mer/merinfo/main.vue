@@ -803,11 +803,17 @@
                         key: 'mobile',
                         align: 'center',
                     },
-                  /*  {
-                        title: '手续费',
-                        key: 'feeAmount',
+
+                    {
+                        title: '商户识别码',
+                        key: 'mobile1',
                         align: 'center',
-                    },*/
+                    },
+                    {
+                        title: '账户余额',
+                        key: 'maxTradeAmount',
+                        align: 'center',
+                    },
                     {
                         title: '创建时间',
                         key: 'catTxt',

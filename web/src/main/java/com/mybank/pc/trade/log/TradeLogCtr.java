@@ -1,12 +1,20 @@
 package com.mybank.pc.trade.log;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.jfinal.kit.Kv;
 import com.jfinal.kit.LogKit;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
+import com.jfinal.plugin.activerecord.SqlPara;
+import com.jfinal.upload.UploadFile;
+import com.mybank.pc.Consts;
 import com.mybank.pc.core.CoreController;
 import com.mybank.pc.interceptors.AdminIAuthInterceptor;
+import com.mybank.pc.kits.DateKit;
 import com.mybank.pc.kits.ResKit;
 import com.mybank.pc.merchant.model.MerchantInfo;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
@@ -34,27 +42,85 @@ public class TradeLogCtr extends CoreController {
      */
     public void list() {
 
-        Page<TradeLog> page;
-        String serach = getPara("search");
-        StringBuffer where = new StringBuffer("from trade_log tt where 1=1 and tt.dat is null  ");
-        if (!isParaBlank("search")) {
-            where.append(" and (instr(tt.tradeNo,?)>0 or instr(tt.tradeMerNo,?)>0) ");
-            where.append(" ORDER BY tt.cat desc");
-            page = TradeLog.dao.paginate(getPN(), getPS(), "select * ", where.toString(), serach,serach );
-        } else {
-            where.append(" ORDER BY tt.cat desc");
-            page = TradeLog.dao.paginate(getPN(), getPS(), "select * ", where.toString());
-        }
         Map map = new HashMap();
+
+        String search = getPara("search");
+        String searchWxAcct = getPara("searchWxAcct");
+        String searchAmount = getPara("searchAmount");
+        Date searchStartDate = getParaToDate("searchDate[0]");
+        Date searchEndDate = getParaToDate("searchDate[1]");
+        //获取当前登录用户信息
+        Kv kv = Kv.create();
+        MerchantInfo merInfo = getAttr(Consts.CURR_USER_MER);
+        if (merInfo != null) {
+            kv.set("searchMerNo", merInfo.getMerchantNo());
+            map.put("merAmount",merInfo.getMaxTradeAmount());
+        }
+
+
+        kv.set("search", search);
+        kv.set("searchWxAcct", searchWxAcct);
+        kv.set("searchAmount", searchAmount);
+        kv.set("searchStartDate",  DateKit.dateToStr(searchStartDate,DateKit.yyyyMMdd));
+        kv.set("searchEndDate", DateKit.dateToStr(searchEndDate,DateKit.yyyyMMdd)+"235959");
+        SqlPara sqlPara = Db.getSqlPara("trade.queryTradeLog", kv);
+        System.out.println(sqlPara.getSql());
+
+        Page<TradeLog> page = TradeLog.dao.paginate(getPN(), getPS(),sqlPara);
+
+
+
+
+
         map.put("page",page);
         renderJson(map);
+    }
+
+    /**
+     * 交易凭证上传
+     */
+    @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
+    public void upTradeImg() {
+        Map resMap = new HashMap();
+        int fileCount = 0;
+        try {
+            UploadFile uf = getFile("file", "", 4 * 1024 * 1000);
+            File file = uf.getFile();
+            String tradeNo = getPara("tradeNo");
+            String tradeImgPath = ResKit.getConfig("trade.img.path");
+            File tradeImg = new File(tradeImgPath + tradeNo + ".jpg");
+            FileUtil.copy(file, tradeImg, true);
+
+            resMap.put("tradeNo", tradeNo);
+            resMap.put("tradeImgName", tradeImg.getName());
+            resMap.put("resCode", "0");
+            resMap.put("resMsg", "文件处理成功");
+            renderJson(resMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            resMap.put("resCode", "1");
+            resMap.put("resMsg", "文件处理失败");
+            renderJson(resMap);
+        }
+    }
+    public void saveTrade(){
+        TradeLog tradeLog = getModel(TradeLog.class,"",true);
+        tradeLog.setTradeStatus("0");
+        tradeLog.setMat(new Date());
+        if(ObjectUtil.isNotNull(currUser())){
+            tradeLog.setOperID(String.valueOf(currUser().getId()));
+        }
+        tradeLog.update();
+        //累加商户账户余额
+        tradeLogSrv.updateMerAmount(tradeLog.getTradeMerID(),tradeLog.getTradeRealAmount(),true);
+        renderSuccessJSON("交易状态已更正。", "");
     }
 
     /**
      * 执行交易获取交易二维码
      */
     @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
-    public void exeTradeQrcode() {
+    public void tradeQrcode() {
         //设置发送到客户端的响应内容类型
         getResponse().addHeader("Access-Control-Allow-Origin", "*");   //用于ajax post跨域（*，最好指定确定的http等协议+ip+端口号）
         getResponse().setCharacterEncoding("utf-8");
@@ -65,8 +131,10 @@ public class TradeLogCtr extends CoreController {
         try {
             String tradeAmount = getPara("tradeAmount");
             String merNo = getPara("merNo");
+            String merIdCode = getPara("merIdCode");
             String callBackUrl = getPara("callBackUrl");
             LogKit.info(tradeAmount);
+
             String sql = "select * from qrcode_info qi where  qi.amount=" + tradeAmount + " and qi.isLock='0' and qi.isVail='0' and qi.dat is null order by qi.realAmount desc";
             QrcodeInfo qrcodeInfo = QrcodeInfo.dao.findFirst(sql);
 
@@ -76,6 +144,20 @@ public class TradeLogCtr extends CoreController {
             if (ObjectUtil.isNull(merchantInfo)) {
                 resMap.put("resCode", "3");
                 resMap.put("resMsg", "商户信息不存在");
+                renderJson(resMap);
+                return;
+            }
+            //商户已被禁用
+            if ("1".equals(merchantInfo.getStatus())) {
+                resMap.put("resCode", "4");
+                resMap.put("resMsg", "该商户已被禁用");
+                renderJson(resMap);
+                return;
+            }
+            //商户已被禁用
+            if (!merIdCode.equals(merchantInfo.getMobile1())) {
+                resMap.put("resCode", "5");
+                resMap.put("resMsg", "商户信息未正确识别，识别码错误");
                 renderJson(resMap);
                 return;
             }
@@ -115,6 +197,7 @@ public class TradeLogCtr extends CoreController {
 
 
             resMap.put("tradeNo", tradeNo);
+            resMap.put("tradeRealAmount",  tradeLog.getTradeRealAmount());
             resMap.put("imgData", new String(Base64.encodeBase64(buff)));
             resMap.put("resCode", "0");
             resMap.put("resMsg", "交易图片获取成功");
@@ -143,8 +226,53 @@ public class TradeLogCtr extends CoreController {
      */
     @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
     public void tradeResult() {
+        //设置发送到客户端的响应内容类型
+        getResponse().addHeader("Access-Control-Allow-Origin", "*");   //用于ajax post跨域（*，最好指定确定的http等协议+ip+端口号）
+        getResponse().setCharacterEncoding("utf-8");
 
+        String tradeNo = getPara("tradeNo");
+        String sql  = "select * from trade_log tt where  tt.tradeNo = '"+tradeNo+"'";
+
+        TradeLog tradeLog = TradeLog.dao.findFirst(sql);
+
+        Map resMap = new HashMap();
+        if(ObjectUtil.isNull(tradeLog)){
+            resMap.put("tradeNo", tradeNo);
+            resMap.put("resMsg", "无此交易");
+            renderJson(resMap);
+            return;
+        }
+        resMap.put("tradeNo", tradeNo);
+        resMap.put("tradeStatus", tradeLog.getTradeStatus());
+        resMap.put("resMsg", tradeLog.getTradeStatusTxt());
+        renderJson(resMap);
     }
 
+    @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
+    public void tradeNotify(){
+        //设置发送到客户端的响应内容类型
+        getResponse().addHeader("Access-Control-Allow-Origin", "*");   //用于ajax post跨域（*，最好指定确定的http等协议+ip+端口号）
+        getResponse().setCharacterEncoding("utf-8");
+
+        String wxAcct = getPara("wxCode");
+        String bak = getPara("bak");
+        String payAmount = getPara("payAmount");
+
+
+        String sql  = "select * from trade_log tt where tt.dat is null and tt.tradeWxAcct = '"+wxAcct+"' and tt.tradeRealAmount="+payAmount;
+
+        TradeLog tradeLog = TradeLog.dao.findFirst(sql);
+        if(ObjectUtil.isNotNull(tradeLog)){
+
+            tradeLog.setMat(new Date());
+            tradeLog.setTradeStatus("0");//交易成功
+            tradeLog.update();
+            //累加商户账户余额
+            tradeLogSrv.updateMerAmount(tradeLog.getTradeMerID(),tradeLog.getTradeRealAmount(),true);
+        }
+
+
+
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.mybank.pc.merchant.info;
 
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.jfinal.aop.Before;
 import com.jfinal.kit.Kv;
@@ -65,7 +66,8 @@ public class MerchantInfoCtr extends CoreController {
         String merNo = merchantInfoSrv.getMerchantNo(merInfo.getMerchantType());
         merInfo.setMerchantNo(merNo);
         merInfo.setCat(new Date());
-
+        merInfo.setMobile1(RandomUtil.randomString(8));
+        merInfo.setMaxTradeAmount(new BigDecimal(0));
         merInfo.setMat(new Date());
         merInfo.setStatus(Consts.STATUS.enable.getVal());
         merInfo.setOperID(String.valueOf(currUser().getId()));

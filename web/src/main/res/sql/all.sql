@@ -19,3 +19,6 @@
 #namespace("merchantFeeAmountRecord")
   #include("merchant_fee_amount_record.sql")
 #end
+#namespace("trade")
+  #include("trade.sql")
+#end

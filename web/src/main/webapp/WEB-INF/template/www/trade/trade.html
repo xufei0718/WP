@@ -85,6 +85,8 @@
 <input type="hidden" id="ctx" value="#(ctx)">
 <div class="container">
     <form id="custForm" role="form" class="form-signin" method="post" action="/mer01/addCust/" enctype="multipart/form-data">
+        <input type="hidden" id="tradeNo" value=""/>
+        <input type="hidden" id="tradeRealAmount" value=""/>
         <h3 class="form-signin-heading">客户银行卡绑定</h3>
 
         <div class="form-group">
@@ -96,12 +98,9 @@
             <img id ="images" src="" width="300px"/>
         </div>
 
-
-
-
-
-
         <button id="sendCode" type="button" class="btn btn-lg btn-primary btn-block " >发起交易</button>
+        <button id="tradeNotify" type="button" class="btn btn-lg btn-primary btn-block " >发送交易通知</button>
+        <div id="tradeResultTxt" style="margin-bottom: 10px"></div>
     </form>
 </div> <!-- /container -->
 
@@ -119,11 +118,14 @@
             return false;
         }
 
-        $.post("http://localhost:8082/tt00/exeTradeQrcode",{tradeAmount:tradeAmount,merNo:'100026'}, function(data) {
+        $.post("http://localhost:8082/tt00/tradeQrcode",{tradeAmount:tradeAmount,merNo:'100026',merIdCode:'dyuor2o6'}, function(data) {
             console.info(data);
             if(data.resCode=='0'){
                 $("#images").attr("src", "data:image/gif;base64," + data.imgData);
                 $("#sendCodeTxt").html("<font color='#339933'>响应码："+data.resCode+" <br/>响应信息："+data.resMsg+" <br/>交易流水号："+data.tradeNo+"</font>");
+                $("#tradeNo").attr("value",data.tradeNo);
+                $("#tradeRealAmount").attr("value",data.tradeRealAmount);
+
             }else{
                 $("#sendCodeTxt").html("<font color='red'>响应码："+data.resCode+" <br/>响应信息："+data.resMsg+"</font>");
             }
@@ -136,6 +138,42 @@
     });
 
 
+    //按钮单击时执行
+    $("#tradeNotify").click(function(){
+        var tradeRealAmount=$("#tradeRealAmount").val();
+        $.post("http://localhost:8082/tt00/tradeNotify",{wxCode:"test_wx_acct_01",payAmount:tradeRealAmount}, function(data) {
+            console.info("交易通知发起"+data);
+        });
+    });
+
+    function sleep(n){
+        var start=new Date().getTime();//定义起始时间的毫秒数
+        while(true){
+            var time=new Date().getTime();//每次执行循环取得一次当前时间的毫秒数
+            if(time-start>n){//如果当前时间的毫秒数减去起始时间的毫秒数大于给定的毫秒数，即结束循环
+                break;
+            }
+        }
+    }
+    var c= setInterval("test()",2000);
+    function test(tradeNo){//用这个函数测试吧
+        tradeNo =   $("#tradeNo").val();
+        console.info("查询执行："+tradeNo);
+
+
+            $.post("http://localhost:8082/tt00/tradeResult",{tradeNo:tradeNo}, function(data) {
+                console.info(data);
+
+                if(data.tradeStatus=="0"){
+                    $("#tradeResultTxt").html("<font color='#339933'>tradeNo："+data.tradeNo+" <br/>tradeStatus："+data.tradeStatus+" <br/>resMsg："+data.resMsg+"</font>");
+                    window.clearInterval(c);
+                    return false;
+                }else{
+                    $("#tradeResultTxt").html("<font color='#000000'>tradeNo："+data.tradeNo+" <br/>tradeStatus："+data.tradeStatus+" <br/>resMsg："+data.resMsg+"</font>");
+                }
+            });
+
+    }
 
 
 </script>

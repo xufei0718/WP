@@ -8,6 +8,7 @@ import cn.hutool.core.util.RandomUtil;
 import com.jfinal.kit.LogKit;
 import com.mybank.pc.kits.DateKit;
 import com.mybank.pc.kits.ZipKit;
+import com.mybank.pc.merchant.model.MerchantInfo;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
 import com.mybank.pc.qrcode.model.QrcodeWxacct;
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +32,27 @@ public class TradeLogSrv {
 
         return strTime +strRandom;
 
+    }
+
+    /**
+     *  更新商户账户余额
+     * @param merID
+     * @param amount
+     * @param mathType ture:加法  false:减法
+     */
+    public void updateMerAmount(Integer merID ,BigDecimal amount,boolean mathType){
+        MerchantInfo merchantInfo = MerchantInfo.dao.findById(merID);
+        if(ObjectUtil.isNotNull(merchantInfo)){
+            BigDecimal Tamount;
+            if (mathType){
+                 Tamount = merchantInfo.getMaxTradeAmount().add(amount);
+            }else{
+                Tamount = merchantInfo.getMaxTradeAmount().subtract(amount);
+            }
+
+            merchantInfo.setMaxTradeAmount(Tamount);
+            merchantInfo.update();
+        }
     }
     /**
      * 加载本地文件,并转换为byte数组
