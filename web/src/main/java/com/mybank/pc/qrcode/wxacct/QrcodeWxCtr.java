@@ -2,17 +2,27 @@ package com.mybank.pc.qrcode.wxacct;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.XmlUtil;
 import com.jfinal.aop.Before;
+import com.jfinal.kit.HttpKit;
+import com.jfinal.kit.LogKit;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.tx.Tx;
+import com.jfinal.plugin.ehcache.CacheKit;
 import com.jfinal.upload.UploadFile;
 import com.mybank.pc.core.CoreController;
+import com.mybank.pc.interceptors.AdminIAuthInterceptor;
 import com.mybank.pc.kits.ResKit;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
 import com.mybank.pc.qrcode.model.QrcodeWxacct;
+import org.apache.commons.codec.binary.Base64;
+import org.w3c.dom.Document;
 
+import javax.xml.xpath.XPathConstants;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -137,5 +147,126 @@ public class QrcodeWxCtr extends CoreController {
 
     }
 
+    /**
+     * 微信账号登陆
+     */
+    public void wxLogin(){
+        String wxAcct  =  getPara("wxAcct");
+        String imgPath = ResKit.getConfig("login.img.path");
+        Map resMap = new HashMap();
+        //将文件路径后增加微信账号文件夹
+        try {
+        imgPath = imgPath+ "/"+wxAcct;
+        File dirWx = new File(imgPath);
+        //如果没有此文件夹则创建
+        if (!dirWx.exists()) {
+            dirWx.mkdirs();
+                LogKit.info("mkdirs: " + dirWx.getCanonicalPath());
+        }
+//        String res;
+//
+//        String url = ResKit.getMsg("url");
+//        Map<String, String> map = new HashMap<>();
+//        map.put("action", "send");
+//
+//        try {
+//
+//            res = HttpKit.post(url, map, "");
+//            LogKit.info("返回信息：" + res);
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
 
+
+        resMap.put("code","0000");
+        renderJson(resMap);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     *  获得登录二维码
+     */
+    public void getLoginImg(){
+        String wxAcct  =  getPara("wxAcct");
+        Map resMap = new HashMap();
+        FileInputStream inputStream ;
+        try {
+        //获取登录二维码
+        String imgPath = ResKit.getConfig("login.img.path");
+        inputStream = new FileInputStream(imgPath + "/" + wxAcct + "/" + wxAcct+".jpg");
+
+        //byte数组用于存放图片字节数据
+        byte[] buff = new byte[inputStream.available()];
+        inputStream.read(buff);
+
+        resMap.put("imgData", new String(Base64.encodeBase64(buff)));
+        renderJson(resMap);
+        }
+        catch (Exception e) {
+            //e.printStackTrace();
+            resMap.put("imgData","");
+            renderJson(resMap);
+        }
+    }
+
+    /**
+     *  查询登录状态
+     */
+    public void queryLoginStatus(){
+        String wxID  =  getPara("wxID");
+        Map resMap = new HashMap();
+        QrcodeWxacct qrcodeWxacct = QrcodeWxacct.dao.findById(new Integer(wxID));
+        resMap.put("isLogin",qrcodeWxacct.getIsLogin());
+        resMap.put("wxAcct",qrcodeWxacct.getWxAcct());
+        renderJson(resMap);
+    }
+
+
+    /**
+     * 上传登陆二维码接口
+     */
+    @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
+    public void qrUpload(){
+        UploadFile uf = getFile("file", "", 4 * 1024 * 1000);
+        File file = uf.getFile();
+        String wxCode = getPara("wxCode");
+        String loginImgPath = ResKit.getConfig("login.img.path");
+        File loginImg = new File(loginImgPath +"/"+ wxCode +"/"+ wxCode+".jpg");
+        FileUtil.copy(file, loginImg, true);
+    }
+
+    /**
+     * 登录成功通知
+     */
+    @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
+    public void loginNotify(){
+        String wxCode = getPara("wxCode");
+       QrcodeWxacct qrcodeWxacct =  QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='"+wxCode+"'");
+        qrcodeWxacct.setIsLogin("0");
+        qrcodeWxacct.update();
+    }
+
+    /**
+     * 微信登出通知
+     */
+    @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
+    public void logoutNotiry(){
+        String wxCode = getPara("wxCode");
+        QrcodeWxacct qrcodeWxacct =  QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='"+wxCode+"'");
+        qrcodeWxacct.setIsLogin("1");
+        qrcodeWxacct.update();
+    }
+
+    /**
+     * 程序退出通知，按登出处理
+     */
+    @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
+    public void exitNotify(){
+        String wxCode = getPara("wxCode");
+        QrcodeWxacct qrcodeWxacct =  QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='"+wxCode+"'");
+        qrcodeWxacct.setIsLogin("1");
+        qrcodeWxacct.update();
+    }
 }

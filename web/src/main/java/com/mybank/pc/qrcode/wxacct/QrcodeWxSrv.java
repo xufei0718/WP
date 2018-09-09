@@ -57,19 +57,26 @@ public class QrcodeWxSrv {
                         continue;//跳出
                     }
                 }
+                //解析文件名   微信账号-金额-.jpg
+                String fileName =  zipEntry.getName();
+                String fileNameWxAcct =fileName.split("-")[0];
+                if(fileNameWxAcct.equals(qw.getWxAcct())){
 
+                    File file = ZipKit.createFile(dstPath, fileName);//若是文件，则需创建该文件
+                    //System.out.println("file created: " + file.getCanonicalPath());
+                    OutputStream outputStream = new FileOutputStream(file);
+                    while ((readLength = zipInputStream.read(buffer, 0, ZipKit.BUFFER)) != -1) {
+                        outputStream.write(buffer, 0, readLength);
+                    }
+                    outputStream.close();
+                    //保存二维码图片相关信息
+                    if(saveQrCode(file.getName(),qw)){
+                        fileCount+=1;
+                    }
 
-                File file = ZipKit.createFile(dstPath, zipEntry.getName());//若是文件，则需创建该文件
-                //System.out.println("file created: " + file.getCanonicalPath());
-                OutputStream outputStream = new FileOutputStream(file);
-                while ((readLength = zipInputStream.read(buffer, 0, ZipKit.BUFFER)) != -1) {
-                    outputStream.write(buffer, 0, readLength);
+                    LogKit.debug("file uncompressed: " + file.getName());
                 }
-                outputStream.close();
-                //保存二维码图片相关信息
-                saveQrCode(file.getName(),qw);
-                fileCount+=1;
-              LogKit.debug("file uncompressed: " + file.getName());
+
             }    // end while
         } catch (FileNotFoundException e) {
             LogKit.info(e.getMessage());
@@ -100,10 +107,15 @@ public class QrcodeWxSrv {
         if (StringUtils.isEmpty(fileName)){
           return false;
         }
-        String name =fileName.split("\\.")[0];
+
+        String fileNameWxAcct =fileName.split("-")[0];
+        String fileNameAmount =fileName.split("-")[1];
+        if(!fileNameWxAcct.equals(qw.getWxAcct())){
+            return false;
+        }
 
 
-        BigDecimal realAmount =new BigDecimal(name).divide(new BigDecimal(100),2,BigDecimal.ROUND_DOWN);
+        BigDecimal realAmount =new BigDecimal(fileNameAmount);
         //System.out.println(realAmount);
         //计算交易金额
         BigDecimal amount = realAmount.setScale( 0, BigDecimal.ROUND_UP ); // 向上取整
@@ -132,13 +144,16 @@ public class QrcodeWxSrv {
 
     public static void main(String[] args) {
         String dir = "C:/Users/Fly/Desktop/img/";
-        Integer name = 1000;
+        String wxAcct = "test_wx_acct_01";
+        BigDecimal name =  new  BigDecimal("10");
+        BigDecimal amount = name.setScale( 1, BigDecimal.ROUND_UP );
         String h = ".jpg";
-        File imgSrc = new File(dir + name+h);
-        Integer imgName= name;
+        File imgSrc = new File(dir + "10.jpg");
+        BigDecimal imgName= name;
         for (int i=0; i<100;i++){
-            imgName+=10;
-            File img = new File(dir + imgName+h);
+            imgName =imgName.add(new BigDecimal("0.1"));
+            imgName =imgName.setScale( 1, BigDecimal.ROUND_UP );
+            File img = new File(dir+"zip/" +wxAcct+"-"+ imgName +"-"+h);
             FileUtil.copy(imgSrc, img, true);
         }
 

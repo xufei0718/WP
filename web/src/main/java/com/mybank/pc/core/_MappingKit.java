@@ -27,6 +27,7 @@ public class _MappingKit {
 		arp.addMapping("merchant_fee_amount_record", "id", MerchantFeeAmountRecord.class);
 		arp.addMapping("merchant_info", "id", MerchantInfo.class);
 		arp.addMapping("merchant_user", "id", MerchantUser.class);
+		arp.addMapping("merchant_amount_log", "id", MerchantAmountLog.class);
 		arp.addMapping("s_attachment", "id", Attachment.class);
 		arp.addMapping("s_content", "id", Content.class);
 		arp.addMapping("s_mapping", "id", Mapping.class);

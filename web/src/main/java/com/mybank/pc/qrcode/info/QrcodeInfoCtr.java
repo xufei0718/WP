@@ -10,12 +10,14 @@ import com.jfinal.plugin.activerecord.tx.Tx;
 import com.jfinal.upload.UploadFile;
 import com.mybank.pc.core.CoreController;
 import com.mybank.pc.kits.ResKit;
+import com.mybank.pc.kits.json.filter.BigDecimalValueFilter;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
 import com.mybank.pc.qrcode.model.QrcodeWxacct;
 import com.mybank.pc.qrcode.wxacct.QrcodeWxSrv;
 import com.mybank.pc.qrcode.wxacct.QrcodeWxValidator;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,15 +36,27 @@ public class QrcodeInfoCtr extends CoreController {
      */
     public void list() {
         Page<Record> page;
-        StringBuffer sql = new StringBuffer(
+        String serach = getPara("search");
+        StringBuffer select = new StringBuffer(
                 "select qi.amount as amount, " +
                 "count(qi.amount) as amountCount, " +
                 "(select count(q.isLock) from qrcode_info q where q.amount=qi.amount and q.isLock='1' and q.dat is NULL) as lockCount, " +
                 "(select count(q.isLock) from qrcode_info q where q.amount=qi.amount and q.isVail='1' and q.dat is NULL) as vailCount, " +
-                "(select count(q.isLock) from qrcode_info q where q.amount=qi.amount and q.isVail='0' and q.isLock='0'  and  q.dat is NULL) as grrCount " +
-                "from qrcode_info qi where 1=1 and qi.dat is null  GROUP BY qi.amount  ORDER BY grrCount asc"
+                "(select count(q.isLock) from qrcode_info q where q.amount=qi.amount and q.isVail='0' and q.isLock='0'  and  q.dat is NULL) as grrCount "
+
         );
-        page=Db.paginate(getPN(),getPS(),sql.toString(),"");
+        StringBuffer sql = new StringBuffer(
+                "from qrcode_info qi where 1=1 and qi.dat is null "
+        );
+        if (!isParaBlank("search")) {
+            sql.append(" and qi.amount =? ");
+            sql.append(" GROUP BY qi.amount  ORDER BY grrCount asc ");
+            page=Db.paginate(getPN(),getPS(),select.toString(),sql.toString(),new BigDecimal(serach));
+        }else{
+            sql.append(" GROUP BY qi.amount  ORDER BY grrCount asc ");
+            page=Db.paginate(getPN(),getPS(),select.toString(),sql.toString());
+        }
+
         Map map = new HashMap();
         map.put("page",page);
         renderJson(map);

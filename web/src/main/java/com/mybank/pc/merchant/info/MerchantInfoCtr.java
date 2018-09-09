@@ -16,10 +16,8 @@ import com.mybank.pc.admin.model.UserRole;
 import com.mybank.pc.core.CoreController;
 import com.mybank.pc.kits.DateKit;
 import com.mybank.pc.kits.ext.BCrypt;
-import com.mybank.pc.merchant.model.MerchantFee;
-import com.mybank.pc.merchant.model.MerchantFeeAmountRecord;
-import com.mybank.pc.merchant.model.MerchantInfo;
-import com.mybank.pc.merchant.model.MerchantUser;
+import com.mybank.pc.merchant.model.*;
+import com.mybank.pc.trade.log.TradeLogSrv;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -35,6 +33,7 @@ import java.util.Map;
 
 public class MerchantInfoCtr extends CoreController {
     private MerchantInfoSrv merchantInfoSrv =enhance(MerchantInfoSrv.class);
+    private TradeLogSrv tradeLogSrv =enhance(TradeLogSrv.class);
 
     public void list() {
         Page<MerchantInfo> page;
@@ -120,6 +119,37 @@ public class MerchantInfoCtr extends CoreController {
         merInfo.update();
         merchantInfoSrv.removeCacheMerchantInfo(merInfo.getId());
         renderSuccessJSON("更新商户信息成功。", "");
+    }
+
+    @Before({MerchantInfoValidator.class, Tx.class})
+    public void updateAmount(){
+        try{
+            String merID = getPara("merID");
+            MerchantInfo merInfo =MerchantInfo.dao.findById(new Integer(merID));
+            String amount = getPara("amount");
+            merInfo = tradeLogSrv.updateMerAmount(merInfo.getId(),new BigDecimal(amount),false);
+            merInfo.setMat(new Date());
+            merInfo.setOperID(String.valueOf(currUser().getId()));
+            merInfo.update();
+
+            //记录商户提现日志
+            MerchantAmountLog mal = new MerchantAmountLog();
+            mal.setMerID(merInfo.getId());
+            mal.setMerNo(merInfo.getMerchantNo());
+            mal.setMerName(merInfo.getMerchantName());
+            mal.setAmount(new BigDecimal(amount));
+            mal.setTAmount(merInfo.getMaxTradeAmount());
+            mal.setAmountType("1");//1：提现
+            mal.setCat(new Date());
+            mal.setOperID(String.valueOf(currUser().getId()));
+            mal.save();
+            renderSuccessJSON("商户提现成功。", "");
+        }catch (Exception e){
+            e.printStackTrace();
+            renderFailJSON("商户提现失败。", "");
+        }
+
+
     }
 
     @Before({Tx.class})

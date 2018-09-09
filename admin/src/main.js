@@ -51,7 +51,8 @@ axiosIns.interceptors.request.use(function (config) {
     //     config.headers.Token = token;
     // }
 
-    store.commit('upadteSpinshow',true);
+    //console.info(config)
+    store.commit('upadteSpinshow',false);
     return config;
 });
 

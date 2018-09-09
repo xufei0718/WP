@@ -4,12 +4,14 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.jfinal.aop.Before;
 import com.jfinal.kit.Kv;
 import com.jfinal.kit.LogKit;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
 import com.jfinal.plugin.activerecord.SqlPara;
+import com.jfinal.plugin.activerecord.tx.Tx;
 import com.jfinal.upload.UploadFile;
 import com.mybank.pc.Consts;
 import com.mybank.pc.core.CoreController;
@@ -64,7 +66,7 @@ public class TradeLogCtr extends CoreController {
         kv.set("searchStartDate",  DateKit.dateToStr(searchStartDate,DateKit.yyyyMMdd));
         kv.set("searchEndDate", DateKit.dateToStr(searchEndDate,DateKit.yyyyMMdd)+"235959");
         SqlPara sqlPara = Db.getSqlPara("trade.queryTradeLog", kv);
-        System.out.println(sqlPara.getSql());
+
 
         Page<TradeLog> page = TradeLog.dao.paginate(getPN(), getPS(),sqlPara);
 
@@ -120,6 +122,7 @@ public class TradeLogCtr extends CoreController {
      * 执行交易获取交易二维码
      */
     @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
+    @Before({Tx.class})
     public void tradeQrcode() {
         //设置发送到客户端的响应内容类型
         getResponse().addHeader("Access-Control-Allow-Origin", "*");   //用于ajax post跨域（*，最好指定确定的http等协议+ip+端口号）
@@ -223,6 +226,7 @@ public class TradeLogCtr extends CoreController {
     }
 
     @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
+    @Before({Tx.class})
     public void tradeNotify(){
         //设置发送到客户端的响应内容类型
         getResponse().addHeader("Access-Control-Allow-Origin", "*");   //用于ajax post跨域（*，最好指定确定的http等协议+ip+端口号）

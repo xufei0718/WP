@@ -156,6 +156,27 @@
             </div>
         </Modal>
 
+        <Modal v-model="amountModal" @on-visible-change="amountChange" :mask-closable="false">
+            <p slot="header">
+                <Icon type="information-circled"></Icon>
+                <span>{{modalTitle}}</span>
+            </p>
+            <Form ref="formAmountValidate" :label-width="150" :model="merInfo" :rules="amountValidate">
+                <FormItem label="商户账户余额" prop="maxTradeAmount">
+                    <span>{{merInfo.maxTradeAmount}}</span>
+
+                </FormItem>
+                <FormItem label="提现金额" >
+                    <Input v-model="upAmount"   placeholder="请输入..." style="width: 300px"/>
+                </FormItem>
+
+            </Form>
+            <div slot="footer">
+                <Button type="success" :loading="modalLoading" @click="updateAmount">保存</Button>
+                <Button type="error" @click="amountModal=false">关闭</Button>
+            </div>
+        </Modal>
+
         <Modal v-model="merFeeAddModal" @on-visible-change="vFeeAmountChange" :mask-closable="false">
             <p slot="header">
                 <Icon type="information-circled"></Icon>
@@ -335,6 +356,24 @@
             }
         }, '编辑')
     }
+    const amountBtn = (vm, h, param) => {
+        return h('Button', {
+            props: {
+                type: 'primary',
+                size: 'small'
+            },
+            style: {
+                marginRight: '5px',
+                marginTop: '2px',
+                marginBottom: '2px',
+            },
+            on: {
+                click: () => {
+                    vm.amount(param.row)
+                }
+            }
+        }, '提现')
+    }
     const stopBtn = (vm, h, param) => {
         return h('Poptip', {
             props: {
@@ -471,6 +510,17 @@
                 vm.merInfoModal = true
 
             },
+
+            amount(merInfo) {
+                this.modalTitle = "商户提现"
+
+                let vm = this
+
+                vm.$store.commit('merInfo_reset', merInfo)
+
+                vm.amountModal = true
+
+            },
             stop(i) {
                 let vm = this;
                 this.$store.dispatch('merInfo_stop', {id: i}).then((res) => {
@@ -507,6 +557,33 @@
                         this.modalLoading = false;
                     }
                 })
+            },
+
+            updateAmount() {
+                let vm = this;
+
+                this.modalLoading = true;
+                this.$refs['formAmountValidate'].validate((valid) => {
+                    if (valid) {
+                        this.$store.dispatch('merInfo_updateAmount', vm.upAmount).then((res) => {
+                            if (res && res == 'success') {
+                                vm.amountModal = false;
+                                this.$store.dispatch('merInfo_list')
+                            } else {
+                                this.modalLoading = false;
+                            }
+                        })
+                    } else {
+                        this.modalLoading = false;
+                    }
+                })
+            },
+            amountChange(b) {
+                if (!b) {
+                    this.$refs['formAmountValidate'].resetFields()
+                    this.modalLoading = false;
+                    this.upAmount='';
+                }
             },
             vChange(b) {
                 if (!b) {
@@ -660,6 +737,9 @@
                 merFeeAddTitle: '手续费续存',
                 merFeeAddModal: false,
                 merFeeAmount: {},
+                amountModal:false,
+                upAmount:'',
+
                 ruleValidate: {
                     merchantName: [
                         {type: 'string', required: true, message: '商户名称不能为空', trigger: 'blur'},
@@ -770,6 +850,13 @@
 
                 },
 
+                amountValidate: {
+                   upAmount: [
+                        {  type: 'string',required: true, message: '提现金额不能为空', trigger: 'blur'},
+                    ],
+
+
+                },
                 tableColums: [
 
                     {
@@ -847,16 +934,13 @@
                     {
                         title: '操作',
                         key: 'action',
-                        width: 180,
+                        width: 220,
                         align: 'center',
                         render: (h, param) => {
                             if (!param.row.dAt) {
                                 if (param.row.status == '0') {
-
-
                                     return h('div', [
-                                       // feeBtn(this, h, param),
-                                       // feeAddBtn(this, h, param),
+                                        amountBtn(this, h, param),
                                         editBtn(this, h, param),
                                         delBtn(this, h, param),
                                         stopBtn(this, h, param),
@@ -866,8 +950,7 @@
 
 
                                     return h('div', [
-                                       // feeBtn(this, h, param),
-                                       // feeAddBtn(this, h, param),
+                                        amountBtn(this, h, param),
                                         editBtn(this, h, param),
                                         delBtn(this, h, param),
                                         actBtn(this, h, param),

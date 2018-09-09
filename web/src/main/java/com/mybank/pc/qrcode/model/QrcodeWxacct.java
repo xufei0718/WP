@@ -19,10 +19,10 @@ public class QrcodeWxacct extends BaseQrcodeWxacct<QrcodeWxacct> {
 		String sts = getIsLogin();
 		if(sts==null)return "";
 		if("0".equals(sts)){
-			return "已登陆";
+			return "已登录";
 		}
 		else if("1".equals(sts)){
-			return "未登陆";
+			return "未登录";
 		}else {
 			return "";
 		}

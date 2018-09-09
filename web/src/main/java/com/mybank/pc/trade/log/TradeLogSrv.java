@@ -5,7 +5,9 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.math.MathUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
+import com.jfinal.aop.Before;
 import com.jfinal.kit.LogKit;
+import com.jfinal.plugin.activerecord.tx.Tx;
 import com.mybank.pc.kits.DateKit;
 import com.mybank.pc.kits.ResKit;
 import com.mybank.pc.kits.ZipKit;
@@ -47,6 +49,7 @@ public class TradeLogSrv {
      * @return
      * @throws IOException
      */
+    @Before({Tx.class})
     public synchronized QrcodeInfo getQrcodeAndSaveTradeLog(Map resMap ,  String tradeAmount , String callBackUrl ,MerchantInfo merchantInfo) throws IOException {
         String sql = "select * from qrcode_info qi where  qi.amount=" + tradeAmount + " and qi.isLock='0' and qi.isVail='0' and qi.dat is null order by qi.realAmount desc";
         QrcodeInfo qrcodeInfo = QrcodeInfo.dao.findFirst(sql);
@@ -92,7 +95,8 @@ public class TradeLogSrv {
      * @param amount
      * @param mathType ture:加法  false:减法
      */
-    public synchronized void updateMerAmount(Integer merID ,BigDecimal amount,boolean mathType){
+    @Before({Tx.class})
+    public synchronized MerchantInfo updateMerAmount(Integer merID ,BigDecimal amount,boolean mathType){
         MerchantInfo merchantInfo = MerchantInfo.dao.findById(merID);
         if(ObjectUtil.isNotNull(merchantInfo)){
             BigDecimal Tamount;
@@ -104,7 +108,9 @@ public class TradeLogSrv {
 
             merchantInfo.setMaxTradeAmount(Tamount);
             merchantInfo.update();
+
         }
+        return merchantInfo;
     }
     /**
      * 加载本地文件,并转换为byte数组

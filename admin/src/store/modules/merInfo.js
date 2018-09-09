@@ -68,6 +68,19 @@ const merInfo = {
                 });
             });
         },
+        merInfo_updateAmount:function ({ commit,state },amount) {
+
+            let vm=this._vm;
+            let p=kit.clone(state.merInfo)
+            return new Promise(function (resolve, reject) {
+                vm.$axios.post('/mer00/updateAmount', {merID:p.id,amount:amount}).then((res) => {
+                    // if(res.resCode&&res.resCode=='success'){
+                    //     commit('user_reset');
+                    // }
+                    resolve(res.resCode);
+                });
+            });
+        },
         merInfo_del:function({commit,state},param){
             let vm=this._vm;
             return new Promise(function (resolve, reject) {
