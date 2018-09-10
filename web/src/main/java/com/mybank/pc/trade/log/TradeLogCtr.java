@@ -1,7 +1,5 @@
 package com.mybank.pc.trade.log;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.jfinal.aop.Before;
@@ -9,7 +7,6 @@ import com.jfinal.kit.Kv;
 import com.jfinal.kit.LogKit;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
-import com.jfinal.plugin.activerecord.Record;
 import com.jfinal.plugin.activerecord.SqlPara;
 import com.jfinal.plugin.activerecord.tx.Tx;
 import com.jfinal.upload.UploadFile;
@@ -20,16 +17,15 @@ import com.mybank.pc.kits.DateKit;
 import com.mybank.pc.kits.ResKit;
 import com.mybank.pc.merchant.model.MerchantInfo;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
-import com.mybank.pc.qrcode.model.QrcodeWxacct;
 import com.mybank.pc.trade.model.TradeLog;
 import org.apache.commons.codec.binary.Base64;
 
-import java.io.*;
-import java.math.BigDecimal;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.GZIPOutputStream;
 
 
 /**
@@ -107,12 +103,18 @@ public class TradeLogCtr extends CoreController {
     }
     public void saveTrade(){
         TradeLog tradeLog = getModel(TradeLog.class,"",true);
+
+        QrcodeInfo qrcodeInfo = QrcodeInfo.dao.findById(tradeLog.getTradeQrcodeID());
+
         tradeLog.setTradeStatus("0");
         tradeLog.setMat(new Date());
         if(ObjectUtil.isNotNull(currUser())){
             tradeLog.setOperID(String.valueOf(currUser().getId()));
         }
         tradeLog.update();
+
+        qrcodeInfo.setIsLock("0");
+        qrcodeInfo.update();
         //累加商户账户余额
         tradeLogSrv.updateMerAmount(tradeLog.getTradeMerID(),tradeLog.getTradeRealAmount(),true);
         renderSuccessJSON("交易状态已更正。", "");
@@ -235,21 +237,10 @@ public class TradeLogCtr extends CoreController {
         String wxAcct = getPara("wxCode");
         String bak = getPara("bak");
         String payAmount = getPara("payAmount");
-
-
-        String sql  = "select * from trade_log tt where tt.dat is null and tt.tradeWxAcct = '"+wxAcct+"' and tt.tradeRealAmount="+payAmount;
-
-        TradeLog tradeLog = TradeLog.dao.findFirst(sql);
-        if(ObjectUtil.isNotNull(tradeLog)){
-
-            tradeLog.setMat(new Date());
-            tradeLog.setTradeStatus("0");//交易成功
-            tradeLog.update();
-            //累加商户账户余额
-            tradeLogSrv.updateMerAmount(tradeLog.getTradeMerID(),tradeLog.getTradeRealAmount(),true);
-        }
-
-
+        tradeLogSrv.updateTradeStatus(wxAcct,payAmount);
+Map resMap = new HashMap();
+        resMap.put("resCode","0000");
+        renderJson(resMap);
 
     }
 

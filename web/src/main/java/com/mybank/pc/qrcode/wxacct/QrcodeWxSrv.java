@@ -143,7 +143,7 @@ public class QrcodeWxSrv {
     }
 
     public static void main(String[] args) {
-        String dir = "C:/Users/Fly/Desktop/img/";
+        String dir = "/Users/xufei/Desktop/img/";
         String wxAcct = "test_wx_acct_01";
         BigDecimal name =  new  BigDecimal("10");
         BigDecimal amount = name.setScale( 1, BigDecimal.ROUND_UP );

@@ -1,31 +1,23 @@
 package com.mybank.pc.trade.log;
 
-import cn.hutool.core.date.DateUnit;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.math.MathUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.jfinal.aop.Before;
 import com.jfinal.kit.LogKit;
 import com.jfinal.plugin.activerecord.tx.Tx;
 import com.mybank.pc.kits.DateKit;
-import com.mybank.pc.kits.ResKit;
-import com.mybank.pc.kits.ZipKit;
 import com.mybank.pc.merchant.model.MerchantInfo;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
-import com.mybank.pc.qrcode.model.QrcodeWxacct;
 import com.mybank.pc.trade.model.TradeLog;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class TradeLogSrv {
 
@@ -71,6 +63,7 @@ public class TradeLogSrv {
         tradeLog.setTradeAmount(new BigDecimal(tradeAmount));
         tradeLog.setTradeRealAmount(qrcodeInfo.getRealAmount());
         tradeLog.setTradeWxAcct(qrcodeInfo.getWxAcct());
+        tradeLog.setTradeQrcodeID(qrcodeInfo.getId());
         tradeLog.setTradeQrcodeImg(qrcodeInfo.getImgName());
         tradeLog.setTradeStatus("1");//1:二维码获取成功，交易已发起，0：已支付成功
         tradeLog.setTradeTime(new Date());
@@ -95,7 +88,7 @@ public class TradeLogSrv {
      * @param amount
      * @param mathType ture:加法  false:减法
      */
-    @Before({Tx.class})
+
     public synchronized MerchantInfo updateMerAmount(Integer merID ,BigDecimal amount,boolean mathType){
         MerchantInfo merchantInfo = MerchantInfo.dao.findById(merID);
         if(ObjectUtil.isNotNull(merchantInfo)){
@@ -112,6 +105,33 @@ public class TradeLogSrv {
         }
         return merchantInfo;
     }
+
+    /**
+     * 更新交易状态为成功
+     */
+    @Before({Tx.class})
+    public synchronized void updateTradeStatus(String wxAcct ,String payAmount){
+        String sql  = "select * from trade_log tt where tt.dat is null and tt.tradeWxAcct = '"+wxAcct+"' and tt.tradeRealAmount="+payAmount +" and tt.tradeStatus='1' ";
+
+        TradeLog tradeLog = TradeLog.dao.findFirst(sql);
+        if(ObjectUtil.isNotNull(tradeLog)){
+            QrcodeInfo qrcodeInfo = QrcodeInfo.dao.findById(tradeLog.getTradeQrcodeID());
+
+
+            tradeLog.setMat(new Date());
+            tradeLog.setTradeStatus("0");//交易成功
+            tradeLog.update();
+
+
+            qrcodeInfo.setIsLock("0");
+            qrcodeInfo.update();
+            //累加商户账户余额
+            updateMerAmount(tradeLog.getTradeMerID(),tradeLog.getTradeRealAmount(),true);
+        }
+
+    }
+
+
     /**
      * 加载本地文件,并转换为byte数组
      * @return

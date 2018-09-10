@@ -17,6 +17,14 @@ public abstract class BaseTradeLog<M extends BaseTradeLog<M>> extends Model<M> i
 		return getInt("id");
 	}
 
+	public void setTradeQrcodeID(Integer tradeQrcodeID) {
+		set("tradeQrcodeID", tradeQrcodeID);
+	}
+
+	public Integer getTradeQrcodeID() {
+		return getInt("tradeQrcodeID");
+	}
+
 	public void setTradeNo(String tradeNo) {
 		set("tradeNo", tradeNo);
 	}
