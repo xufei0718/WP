@@ -2,29 +2,28 @@ package com.mybank.pc.qrcode.wxacct;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.XmlUtil;
 import com.jfinal.aop.Before;
 import com.jfinal.kit.HttpKit;
 import com.jfinal.kit.LogKit;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.tx.Tx;
-import com.jfinal.plugin.ehcache.CacheKit;
 import com.jfinal.upload.UploadFile;
 import com.mybank.pc.core.CoreController;
 import com.mybank.pc.interceptors.AdminIAuthInterceptor;
+import com.mybank.pc.kits.FileKit;
 import com.mybank.pc.kits.ResKit;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
 import com.mybank.pc.qrcode.model.QrcodeWxacct;
 import org.apache.commons.codec.binary.Base64;
-import org.w3c.dom.Document;
 
-import javax.xml.xpath.XPathConstants;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -160,23 +159,28 @@ public class QrcodeWxCtr extends CoreController {
         File dirWx = new File(imgPath);
         //如果没有此文件夹则创建
         if (!dirWx.exists()) {
+
             dirWx.mkdirs();
                 LogKit.info("mkdirs: " + dirWx.getCanonicalPath());
+        }else{
+            FileKit.deleteDir(dirWx);
+            dirWx.mkdirs();
+            LogKit.info("mkdirs: " + dirWx.getCanonicalPath());
         }
-//        String res;
-//
-//        String url = ResKit.getMsg("url");
-//        Map<String, String> map = new HashMap<>();
-//        map.put("action", "send");
-//
-//        try {
-//
-//            res = HttpKit.post(url, map, "");
-//            LogKit.info("返回信息：" + res);
-//
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
+        String res;
+
+        String url = ResKit.getConfig("wxLogin.url");
+        Map<String, String> map = new HashMap<>();
+        map.put("wxCode", wxAcct);
+
+        try {
+
+            res = HttpKit.post(url, map, "");
+            LogKit.info("返回信息：" + res);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
 
         resMap.put("code","0000");
@@ -235,6 +239,9 @@ public class QrcodeWxCtr extends CoreController {
         String loginImgPath = ResKit.getConfig("login.img.path");
         File loginImg = new File(loginImgPath +"/"+ wxCode +"/"+ wxCode+".jpg");
         FileUtil.copy(file, loginImg, true);
+        Map resMap = new HashMap();
+        resMap.put("resCode","0000");
+        renderJson(resMap);
     }
 
     /**
@@ -243,20 +250,26 @@ public class QrcodeWxCtr extends CoreController {
     @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
     public void loginNotify(){
         String wxCode = getPara("wxCode");
-       QrcodeWxacct qrcodeWxacct =  QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='"+wxCode+"'");
+        QrcodeWxacct qrcodeWxacct =  QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='"+wxCode+"'");
         qrcodeWxacct.setIsLogin("0");
         qrcodeWxacct.update();
+        Map resMap = new HashMap();
+        resMap.put("resCode","0000");
+        renderJson(resMap);
     }
 
     /**
      * 微信登出通知
      */
     @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
-    public void logoutNotiry(){
+    public void logoutNotify(){
         String wxCode = getPara("wxCode");
         QrcodeWxacct qrcodeWxacct =  QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='"+wxCode+"'");
         qrcodeWxacct.setIsLogin("1");
         qrcodeWxacct.update();
+        Map resMap = new HashMap();
+        resMap.put("resCode","0000");
+        renderJson(resMap);
     }
 
     /**
@@ -268,5 +281,8 @@ public class QrcodeWxCtr extends CoreController {
         QrcodeWxacct qrcodeWxacct =  QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='"+wxCode+"'");
         qrcodeWxacct.setIsLogin("1");
         qrcodeWxacct.update();
+        Map resMap = new HashMap();
+        resMap.put("resCode","0000");
+        renderJson(resMap);
     }
 }
