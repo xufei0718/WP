@@ -22,9 +22,7 @@ import com.mybank.pc.trade.model.TradeLog;
 public class _MappingKit {
 
 	public static void mapping(ActiveRecordPlugin arp) {
-		arp.addMapping("merchant_cust", "id", MerchantCust.class);
-		arp.addMapping("merchant_fee", "id", MerchantFee.class);
-		arp.addMapping("merchant_fee_amount_record", "id", MerchantFeeAmountRecord.class);
+
 		arp.addMapping("merchant_info", "id", MerchantInfo.class);
 		arp.addMapping("merchant_user", "id", MerchantUser.class);
 		arp.addMapping("merchant_amount_log", "id", MerchantAmountLog.class);

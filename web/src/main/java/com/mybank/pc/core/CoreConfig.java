@@ -34,13 +34,11 @@ import com.mybank.pc.interceptors.AdminIAuthInterceptor;
 import com.mybank.pc.interceptors.ExceptionInterceptor;
 import com.mybank.pc.kits.DateKit;
 import com.mybank.pc.kits.ResKit;
-import com.mybank.pc.merchant.cust.MerchantCustCtr;
 import com.mybank.pc.merchant.info.MerchantInfoCtr;
 import com.mybank.pc.merchant.user.MerchantUserCtr;
 import com.mybank.pc.qrcode.info.QrcodeInfoCtr;
 import com.mybank.pc.qrcode.wxacct.QrcodeWxCtr;
 import com.mybank.pc.trade.log.TradeLogCtr;
-import com.mybank.pc.trade.model.TradeLog;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
@@ -108,12 +106,6 @@ public class CoreConfig extends JFinalConfig {
 			@Override
 			public void config() {
 				add("/mer00", MerchantInfoCtr.class);
-			}
-		});
-		routes.add(new Routes() {
-			@Override
-			public void config() {
-				add("/mer01", MerchantCustCtr.class);
 			}
 		});
 		routes.add(new Routes() {
@@ -244,12 +236,7 @@ public class CoreConfig extends JFinalConfig {
 		// 设置请求以json格式返回的时候，排除掉请求中用户身份信息相关的数据。
 		JsonRender.addExcludedAttrs(Consts.CURR_USER, Consts.CURR_USER_MER, Consts.CURR_USER_RESES,
 				Consts.CURR_USER_ROLES);
-		try {
-			// 初始化银联代收SDK
-			Class.forName("com.mybank.pc.kits.unionpay.acp.SDK");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+
 
 	}
 }
