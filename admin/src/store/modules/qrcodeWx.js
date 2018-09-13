@@ -116,6 +116,15 @@ const qrcodeWx = {
                 });
             });
         },
+        qrcodeWx_logout: function ({commit, state}, param) {
+            let vm = this._vm;
+            return new Promise(function (resolve, reject) {
+                vm.$axios.post('/qr00/wxLogout', param).then((res) => {
+                    console.info(res);
+                    resolve(res)
+                });
+            });
+        },
         qrcodeWx_getLoginImg: function ({commit, state}, param) {
             let vm = this._vm;
             return new Promise(function (resolve, reject) {

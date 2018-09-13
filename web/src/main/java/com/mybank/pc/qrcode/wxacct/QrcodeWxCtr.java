@@ -27,11 +27,11 @@ import java.util.Map;
 
 
 /**
- *  微信账号管理
+ * 微信账号管理
  */
 
 public class QrcodeWxCtr extends CoreController {
-    private QrcodeWxSrv qrcodeWxSrv =enhance(QrcodeWxSrv.class);
+    private QrcodeWxSrv qrcodeWxSrv = enhance(QrcodeWxSrv.class);
 
     /**
      * 显示微信账号列表
@@ -43,13 +43,13 @@ public class QrcodeWxCtr extends CoreController {
         if (!isParaBlank("search")) {
             where.append(" and instr(qw.wxAcct,?)>0 ");
             where.append(" ORDER BY qw.cat desc");
-            page = QrcodeWxacct.dao.paginate(getPN(), getPS(), "select * ", where.toString(), serach );
+            page = QrcodeWxacct.dao.paginate(getPN(), getPS(), "select * ", where.toString(), serach);
         } else {
             where.append(" ORDER BY qw.cat desc");
             page = QrcodeWxacct.dao.paginate(getPN(), getPS(), "select * ", where.toString());
         }
         Map map = new HashMap();
-        map.put("page",page);
+        map.put("page", page);
         renderJson(map);
 
     }
@@ -59,7 +59,7 @@ public class QrcodeWxCtr extends CoreController {
      */
     @Before({QrcodeWxValidator.class, Tx.class})
     public void save() {
-        QrcodeWxacct qrcodeWxacct = getModel(QrcodeWxacct.class,"",true);
+        QrcodeWxacct qrcodeWxacct = getModel(QrcodeWxacct.class, "", true);
         qrcodeWxacct.setCat(new Date());
         qrcodeWxacct.setIsLogin("1");
         qrcodeWxacct.save();
@@ -70,14 +70,14 @@ public class QrcodeWxCtr extends CoreController {
      * 删除微信账号
      */
     @Before({Tx.class})
-    public void del(){
-        int id=getParaToInt("id");
-        QrcodeWxacct qrcodeWxacct=QrcodeWxacct.dao.findById(id);
-        List<QrcodeInfo> list = QrcodeInfo.dao.find("select * from qrcode_info qi where qi.wxAcctID="+id);
+    public void del() {
+        int id = getParaToInt("id");
+        QrcodeWxacct qrcodeWxacct = QrcodeWxacct.dao.findById(id);
+        List<QrcodeInfo> list = QrcodeInfo.dao.find("select * from qrcode_info qi where qi.wxAcctID=" + id);
 
         Date date = new Date();
-        if(CollectionUtil.isNotEmpty(list)){
-            for (QrcodeInfo qi :list) {
+        if (CollectionUtil.isNotEmpty(list)) {
+            for (QrcodeInfo qi : list) {
                 qi.setDat(date);
                 qi.update();
             }
@@ -88,17 +88,18 @@ public class QrcodeWxCtr extends CoreController {
         renderSuccessJSON("删除微信账号成功。");
 
     }
+
     /**
      * 查询微信账号详细信息
      */
     public void info() {
-        int id=getParaToInt("id");
-            QrcodeWxacct qrcodeWxacct = QrcodeWxacct.dao.findById(id );
-            //查询二维码数量
-       Integer qrCount = Db.queryInt("select count(qi.id) from qrcode_info qi where qi.wxAcctID=" + id + " and qi.dat is null");
+        int id = getParaToInt("id");
+        QrcodeWxacct qrcodeWxacct = QrcodeWxacct.dao.findById(id);
+        //查询二维码数量
+        Integer qrCount = Db.queryInt("select count(qi.id) from qrcode_info qi where qi.wxAcctID=" + id + " and qi.dat is null");
         Map map = new HashMap();
-        map.put("qrcodeWxacct",qrcodeWxacct);
-        map.put("qrCount",qrCount);
+        map.put("qrcodeWxacct", qrcodeWxacct);
+        map.put("qrCount", qrCount);
         renderJson(map);
 
     }
@@ -106,40 +107,40 @@ public class QrcodeWxCtr extends CoreController {
     /**
      * 二维码交易图片压缩包上传
      */
-    public void upQrZip()  {
+    public void upQrZip() {
         Map resMap = new HashMap();
-        int fileCount=0;
+        int fileCount = 0;
         try {
-            UploadFile uf = getFile("file" ,"", 20 * 1024 * 1000);
+            UploadFile uf = getFile("file", "", 20 * 1024 * 1000);
             File file = uf.getFile();
             Integer id = Integer.valueOf(getPara("id"));
-            QrcodeWxacct qw=   QrcodeWxacct.dao.findById(id);
+            QrcodeWxacct qw = QrcodeWxacct.dao.findById(id);
             String zipTempFilePath = ResKit.getConfig("qrcode.ziptemp.path");
             String unzipFilePath = ResKit.getConfig("qrcode.img.path");
             File zipTemp = new File(zipTempFilePath + file.getName());
             FileUtil.copy(file, zipTemp, true);
             //System.out.println(zipTemp.getPath());
-             fileCount = qrcodeWxSrv.unzip(zipTemp.getPath(), unzipFilePath,qw);
-            if (fileCount==0) {
-                resMap.put("resCode","1");
-                resMap.put("resMsg","文件处理失败");
-                resMap.put("fileCount",fileCount);
+            fileCount = qrcodeWxSrv.unzip(zipTemp.getPath(), unzipFilePath, qw);
+            if (fileCount == 0) {
+                resMap.put("resCode", "1");
+                resMap.put("resMsg", "文件处理失败");
+                resMap.put("fileCount", fileCount);
                 renderJson(resMap);
                 return;
             }
 
 
             FileUtil.del(zipTemp);
-            resMap.put("resCode","0");
-            resMap.put("resMsg","文件处理成功");
-            resMap.put("fileCount",fileCount);
+            resMap.put("resCode", "0");
+            resMap.put("resMsg", "文件处理成功");
+            resMap.put("fileCount", fileCount);
 
             renderJson(resMap);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            resMap.put("resCode","1");
-            resMap.put("resMsg","文件处理失败");
-            resMap.put("fileCount",fileCount);
+            resMap.put("resCode", "1");
+            resMap.put("resMsg", "文件处理失败");
+            resMap.put("fileCount", fileCount);
             renderJson(resMap);
         }
 
@@ -149,81 +150,106 @@ public class QrcodeWxCtr extends CoreController {
     /**
      * 微信账号登陆
      */
-    public void wxLogin(){
-        String wxAcct  =  getPara("wxAcct");
+    public void wxLogin() {
+        String wxAcct = getPara("wxAcct");
         String imgPath = ResKit.getConfig("login.img.path");
         Map resMap = new HashMap();
         //将文件路径后增加微信账号文件夹
         try {
-        imgPath = imgPath+ "/"+wxAcct;
-        File dirWx = new File(imgPath);
-        //如果没有此文件夹则创建
-        if (!dirWx.exists()) {
+            imgPath = imgPath + "/" + wxAcct;
+            File dirWx = new File(imgPath);
+            //如果没有此文件夹则创建
+            if (!dirWx.exists()) {
 
-            dirWx.mkdirs();
+                dirWx.mkdirs();
                 LogKit.info("mkdirs: " + dirWx.getCanonicalPath());
-        }else{
-            FileKit.deleteDir(dirWx);
-            dirWx.mkdirs();
-            LogKit.info("mkdirs: " + dirWx.getCanonicalPath());
-        }
-        String res;
+            } else {
+                FileKit.deleteDir(dirWx);
+                dirWx.mkdirs();
+                LogKit.info("mkdirs: " + dirWx.getCanonicalPath());
+            }
+            String res;
 
-        String url = ResKit.getConfig("wxLogin.url");
-        Map<String, String> map = new HashMap<>();
-        map.put("wxCode", wxAcct);
+            String url = ResKit.getConfig("wxLogin.url");
+            Map<String, String> map = new HashMap<>();
+            map.put("wxCode", wxAcct);
 
-        try {
+            try {
 
-            res = HttpKit.post(url, map, "");
-            LogKit.info("返回信息：" + res);
+                res = HttpKit.post(url, map, "");
+                LogKit.info("返回信息：" + res);
 
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
 
-        resMap.put("code","0000");
-        renderJson(resMap);
+            resMap.put("code", "0000");
+            renderJson(resMap);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     /**
-     *  获得登录二维码
+     * 微信账号退出
      */
-    public void getLoginImg(){
-        String wxAcct  =  getPara("wxAcct");
-        Map resMap = new HashMap();
-        FileInputStream inputStream ;
-        try {
-        //获取登录二维码
-        String imgPath = ResKit.getConfig("login.img.path");
-        inputStream = new FileInputStream(imgPath + "/" + wxAcct + "/" + wxAcct+".jpg");
+    @Before({Tx.class})
+    public void wxLogout() {
+        String wxAcct = getPara("wxAcct");
 
-        //byte数组用于存放图片字节数据
-        byte[] buff = new byte[inputStream.available()];
-        inputStream.read(buff);
 
-        resMap.put("imgData", new String(Base64.encodeBase64(buff)));
-        renderJson(resMap);
+
+        QrcodeWxacct qrcodeWxacct = QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='" + wxAcct + "'");
+        Date date = new Date();
+        List<QrcodeInfo> list = QrcodeInfo.dao.find("select * from qrcode_info qi where qi.dat is null and qi.wxAcctID=" + qrcodeWxacct.getId());
+        for (QrcodeInfo qi : list) {
+            qi.setIsVail("1");
+            qi.setMat(date);
+            qi.update();
         }
-        catch (Exception e) {
+        qrcodeWxacct.setIsLogin("1");
+        qrcodeWxacct.update();
+
+
+        renderSuccessJSON("微信退出成功","");
+
+    }
+
+    /**
+     * 获得登录二维码
+     */
+    public void getLoginImg() {
+        String wxAcct = getPara("wxAcct");
+        Map resMap = new HashMap();
+        FileInputStream inputStream;
+        try {
+            //获取登录二维码
+            String imgPath = ResKit.getConfig("login.img.path");
+            inputStream = new FileInputStream(imgPath + "/" + wxAcct + "/" + wxAcct + ".jpg");
+
+            //byte数组用于存放图片字节数据
+            byte[] buff = new byte[inputStream.available()];
+            inputStream.read(buff);
+
+            resMap.put("imgData", new String(Base64.encodeBase64(buff)));
+            renderJson(resMap);
+        } catch (Exception e) {
             //e.printStackTrace();
-            resMap.put("imgData","");
+            resMap.put("imgData", "");
             renderJson(resMap);
         }
     }
 
     /**
-     *  查询登录状态
+     * 查询登录状态
      */
-    public void queryLoginStatus(){
-        String wxID  =  getPara("wxID");
+    public void queryLoginStatus() {
+        String wxID = getPara("wxID");
         Map resMap = new HashMap();
         QrcodeWxacct qrcodeWxacct = QrcodeWxacct.dao.findById(new Integer(wxID));
-        resMap.put("isLogin",qrcodeWxacct.getIsLogin());
-        resMap.put("wxAcct",qrcodeWxacct.getWxAcct());
+        resMap.put("isLogin", qrcodeWxacct.getIsLogin());
+        resMap.put("wxAcct", qrcodeWxacct.getWxAcct());
         renderJson(resMap);
     }
 
@@ -232,15 +258,15 @@ public class QrcodeWxCtr extends CoreController {
      * 上传登陆二维码接口
      */
     @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
-    public void qrUpload(){
+    public void qrUpload() {
         UploadFile uf = getFile("file", "", 4 * 1024 * 1000);
         File file = uf.getFile();
         String wxCode = getPara("wxCode");
         String loginImgPath = ResKit.getConfig("login.img.path");
-        File loginImg = new File(loginImgPath +"/"+ wxCode +"/"+ wxCode+".jpg");
+        File loginImg = new File(loginImgPath + "/" + wxCode + "/" + wxCode + ".jpg");
         FileUtil.copy(file, loginImg, true);
         Map resMap = new HashMap();
-        resMap.put("resCode","0000");
+        resMap.put("resCode", "0000");
         renderJson(resMap);
     }
 
@@ -248,13 +274,21 @@ public class QrcodeWxCtr extends CoreController {
      * 登录成功通知
      */
     @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
-    public void loginNotify(){
+    @Before({Tx.class})
+    public void loginNotify() {
         String wxCode = getPara("wxCode");
-        QrcodeWxacct qrcodeWxacct =  QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='"+wxCode+"'");
+        QrcodeWxacct qrcodeWxacct = QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='" + wxCode + "'");
+        Date date = new Date();
+        List<QrcodeInfo> list = QrcodeInfo.dao.find("select * from qrcode_info qi where qi.dat is null and qi.wxAcctID=" + qrcodeWxacct.getId());
+        for (QrcodeInfo qi : list) {
+            qi.setIsVail("0");
+            qi.setMat(date);
+            qi.update();
+        }
         qrcodeWxacct.setIsLogin("0");
         qrcodeWxacct.update();
         Map resMap = new HashMap();
-        resMap.put("resCode","0000");
+        resMap.put("resCode", "0000");
         renderJson(resMap);
     }
 
@@ -262,13 +296,21 @@ public class QrcodeWxCtr extends CoreController {
      * 微信登出通知
      */
     @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
-    public void logoutNotify(){
+    @Before({Tx.class})
+    public void logoutNotify() {
         String wxCode = getPara("wxCode");
-        QrcodeWxacct qrcodeWxacct =  QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='"+wxCode+"'");
+        QrcodeWxacct qrcodeWxacct = QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='" + wxCode + "'");
+        Date date = new Date();
+        List<QrcodeInfo> list = QrcodeInfo.dao.find("select * from qrcode_info qi where qi.dat is null and qi.wxAcctID=" + qrcodeWxacct.getId());
+        for (QrcodeInfo qi : list) {
+            qi.setIsVail("1");
+            qi.setMat(date);
+            qi.update();
+        }
         qrcodeWxacct.setIsLogin("1");
         qrcodeWxacct.update();
         Map resMap = new HashMap();
-        resMap.put("resCode","0000");
+        resMap.put("resCode", "0000");
         renderJson(resMap);
     }
 
@@ -276,13 +318,21 @@ public class QrcodeWxCtr extends CoreController {
      * 程序退出通知，按登出处理
      */
     @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
-    public void exitNotify(){
+    @Before({Tx.class})
+    public void exitNotify() {
         String wxCode = getPara("wxCode");
-        QrcodeWxacct qrcodeWxacct =  QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='"+wxCode+"'");
+        QrcodeWxacct qrcodeWxacct = QrcodeWxacct.dao.findFirst("select * from qrcode_wxacct qw where qw.dat is null and qw.wxAcct='" + wxCode + "'");
+        Date date = new Date();
+        List<QrcodeInfo> list = QrcodeInfo.dao.find("select * from qrcode_info qi where qi.dat is null and qi.wxAcctID=" + qrcodeWxacct.getId());
+        for (QrcodeInfo qi : list) {
+            qi.setIsVail("1");
+            qi.setMat(date);
+            qi.update();
+        }
         qrcodeWxacct.setIsLogin("1");
         qrcodeWxacct.update();
         Map resMap = new HashMap();
-        resMap.put("resCode","0000");
+        resMap.put("resCode", "0000");
         renderJson(resMap);
     }
 }
