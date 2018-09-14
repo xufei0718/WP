@@ -66,7 +66,8 @@
                             <Card style="margin-left: 5px; height: 400px">
                                 <p slot="title">微信登陆</p>
                                 <p align="center">
-                                    <Button  v-if="loginBtnShow" style="margin-top: 20px"  type="primary" icon="person" size="large" @click="login">微信登录</Button>
+                                    <Button v-if="loginBtnShow" style="margin-top: 20px" type="primary" icon="person" size="large" @click="login">微信登录</Button>
+                                    <Button v-if="loginInfoShow" style="margin-top: 20px" type="error" icon="person" size="large" @click="logout">微信状态重置（非异常状况不可使用此功能）</Button>
                                 </p>
                                 <p align="center">
                                     <span v-if="loginImgShow" style="margin-top: 30px">扫描下方二维码登录微信</span>
@@ -157,26 +158,44 @@
                 this.$store.dispatch('qrcodeWx_login', {wxAcct: vm.qrcodeWx.wxAcct}).then((res) => {
 
                     vm.$store.commit('wxManager_updateIsLoginShow', false)
+
+
                     vm.cTime = setInterval(() => {
                         this.getLoginImg();
                     }, 1000)
                 })
             },
-            getLoginImg() {
+            logout() {
                 let vm = this;
-                this.$store.dispatch('qrcodeWx_getLoginImg', {wxAcct: vm.qrcodeWx.wxAcct}).then((res) => {
-
-                    if (res.imgData !== "") {
-                        vm.imgData = "data:image/gif;base64," + res.imgData;
-                        vm.loginImgShow = true;
-                        clearInterval(vm.cTime);
-                        vm.dTime = setInterval(() => {
-                            this.queryLoginStatus();
-                        }, 1000)
+                this.$store.dispatch('qrcodeWx_logout', {wxAcct: vm.qrcodeWx.wxAcct}).then((res) => {
+                    if (res.resCode && res.resCode == 'success') {
+                        console.info("微信退出成功")
+                        vm.$store.commit('wxManager_set', {id: vm.wxID})
                     }
+                    
                 })
             },
+            getLoginImg() {
+                console.info("执行轮询图片")
+                let vm = this;
+                if (!vm.queryLoginStatus()) {
+
+                    this.$store.dispatch('qrcodeWx_getLoginImg', {wxAcct: vm.qrcodeWx.wxAcct}).then((res) => {
+                        if (res.imgData !== "") {
+                            vm.imgData = "data:image/gif;base64," + res.imgData;
+                            vm.loginImgShow = true;
+                            clearInterval(vm.cTime);
+                            vm.dTime = setInterval(() => {
+                                this.queryLoginStatus();
+                            }, 1000)
+                        }
+
+
+                    })
+                }
+            },
             queryLoginStatus() {
+                console.info("查询状态")
                 let vm = this;
                 this.$store.dispatch('qrcodeWx_queryLoginStatus', {wxID: vm.qrcodeWx.id}).then((res) => {
                     if (res.isLogin === "0") {
@@ -184,7 +203,9 @@
                         this.$store.commit('wxManager_set', {id: vm.qrcodeWx.id})
                         vm.loginImgShow = false;
                         vm.imgData = "";
-
+                        return true
+                    } else {
+                        return false
                     }
                 })
             },

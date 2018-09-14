@@ -128,12 +128,17 @@ public class QrcodeWxSrv {
             qi.setAmount(amount);
             qi.setRealAmount(realAmount);
             qi.setIsLock("0");
-            qi.setIsVail("0");
+            if("0".equals(qw.getIsLogin())){
+                qi.setIsVail("0");
+            }else{
+                qi.setIsVail("1");
+            }
             qi.setImgName(fileName);
             qi.setWxAcct(qw.getWxAcct());
             qi.setCat(new Date());
             qi.save();
         }else{
+
             qitemp.setImgName(fileName);
             qitemp.setMat(new Date());
             qitemp.update();
@@ -144,7 +149,7 @@ public class QrcodeWxSrv {
 
     public static void main(String[] args) {
         String dir = "/Users/xufei/Desktop/img/";
-        String wxAcct = "test_wx_acct_01";
+        String wxAcct = "yuhaihui3435";
         BigDecimal name =  new  BigDecimal("10");
         BigDecimal amount = name.setScale( 1, BigDecimal.ROUND_UP );
         String h = ".jpg";
