@@ -1,10 +1,7 @@
 package com.mybank.pc.merchant.info;
 
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
 import com.jfinal.aop.Before;
-import com.jfinal.kit.Kv;
-import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.tx.Tx;
 import com.jfinal.plugin.ehcache.CacheKit;
@@ -14,9 +11,10 @@ import com.mybank.pc.admin.model.Taxonomy;
 import com.mybank.pc.admin.model.User;
 import com.mybank.pc.admin.model.UserRole;
 import com.mybank.pc.core.CoreController;
-import com.mybank.pc.kits.DateKit;
 import com.mybank.pc.kits.ext.BCrypt;
-import com.mybank.pc.merchant.model.*;
+import com.mybank.pc.merchant.model.MerchantAmountLog;
+import com.mybank.pc.merchant.model.MerchantInfo;
+import com.mybank.pc.merchant.model.MerchantUser;
 import com.mybank.pc.trade.log.TradeLogSrv;
 
 import java.math.BigDecimal;
@@ -228,10 +226,5 @@ public class MerchantInfoCtr extends CoreController {
         MerchantInfo merInfo = getAttr(Consts.CURR_USER_MER);
         renderJson(merInfo);
     }
-
-
-
-
-
 
 }
