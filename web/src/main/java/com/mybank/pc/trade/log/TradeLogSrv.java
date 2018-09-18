@@ -110,7 +110,7 @@ public class TradeLogSrv {
      * 更新交易状态为成功
      */
     @Before({Tx.class})
-    public synchronized void updateTradeStatus(String wxAcct ,String payAmount){
+    public synchronized TradeLog updateTradeStatus(String wxAcct ,String payAmount){
         String sql  = "select * from trade_log tt where tt.dat is null and tt.tradeWxAcct = '"+wxAcct+"' and tt.tradeRealAmount="+payAmount +" and tt.tradeStatus='1' ";
 
         TradeLog tradeLog = TradeLog.dao.findFirst(sql);
@@ -128,6 +128,7 @@ public class TradeLogSrv {
             //累加商户账户余额
             updateMerAmount(tradeLog.getTradeMerID(),tradeLog.getTradeRealAmount(),true);
         }
+        return tradeLog;
 
     }
 

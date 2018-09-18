@@ -3,6 +3,7 @@ package com.mybank.pc.trade.log;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.jfinal.aop.Before;
+import com.jfinal.kit.HttpKit;
 import com.jfinal.kit.Kv;
 import com.jfinal.kit.LogKit;
 import com.jfinal.plugin.activerecord.Db;
@@ -19,6 +20,7 @@ import com.mybank.pc.merchant.model.MerchantInfo;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
 import com.mybank.pc.trade.model.TradeLog;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,25 +54,22 @@ public class TradeLogCtr extends CoreController {
         MerchantInfo merInfo = getAttr(Consts.CURR_USER_MER);
         if (merInfo != null) {
             kv.set("searchMerNo", merInfo.getMerchantNo());
-            map.put("merAmount",merInfo.getMaxTradeAmount());
+            map.put("merAmount", merInfo.getMaxTradeAmount());
         }
 
 
         kv.set("search", search);
         kv.set("searchWxAcct", searchWxAcct);
         kv.set("searchAmount", searchAmount);
-        kv.set("searchStartDate",  DateKit.dateToStr(searchStartDate,DateKit.yyyyMMdd));
-        kv.set("searchEndDate", DateKit.dateToStr(searchEndDate,DateKit.yyyyMMdd)+"235959");
+        kv.set("searchStartDate", DateKit.dateToStr(searchStartDate, DateKit.yyyyMMdd));
+        kv.set("searchEndDate", DateKit.dateToStr(searchEndDate, DateKit.yyyyMMdd) + "235959");
         SqlPara sqlPara = Db.getSqlPara("trade.queryTradeLog", kv);
 
 
-        Page<TradeLog> page = TradeLog.dao.paginate(getPN(), getPS(),sqlPara);
+        Page<TradeLog> page = TradeLog.dao.paginate(getPN(), getPS(), sqlPara);
 
 
-
-
-
-        map.put("page",page);
+        map.put("page", page);
         renderJson(map);
     }
 
@@ -101,14 +100,15 @@ public class TradeLogCtr extends CoreController {
             renderJson(resMap);
         }
     }
-    public void saveTrade(){
-        TradeLog tradeLog = getModel(TradeLog.class,"",true);
+
+    public void saveTrade() {
+        TradeLog tradeLog = getModel(TradeLog.class, "", true);
 
         QrcodeInfo qrcodeInfo = QrcodeInfo.dao.findById(tradeLog.getTradeQrcodeID());
 
         tradeLog.setTradeStatus("0");
         tradeLog.setMat(new Date());
-        if(ObjectUtil.isNotNull(currUser())){
+        if (ObjectUtil.isNotNull(currUser())) {
             tradeLog.setOperID(String.valueOf(currUser().getId()));
         }
         tradeLog.update();
@@ -116,7 +116,7 @@ public class TradeLogCtr extends CoreController {
         qrcodeInfo.setIsLock("0");
         qrcodeInfo.update();
         //累加商户账户余额
-        tradeLogSrv.updateMerAmount(tradeLog.getTradeMerID(),tradeLog.getTradeRealAmount(),true);
+        tradeLogSrv.updateMerAmount(tradeLog.getTradeMerID(), tradeLog.getTradeRealAmount(), true);
         renderSuccessJSON("交易状态已更正。", "");
     }
 
@@ -139,7 +139,6 @@ public class TradeLogCtr extends CoreController {
             String merIdCode = getPara("merIdCode");
             String callBackUrl = getPara("callBackUrl");
             LogKit.info(tradeAmount);
-
 
 
             String sqlMer = "select * from merchant_info mi where mi.merchantNo='" + merNo + "'";
@@ -166,9 +165,9 @@ public class TradeLogCtr extends CoreController {
                 return;
             }
 
-            QrcodeInfo qrcodeInfo =     tradeLogSrv.getQrcodeAndSaveTradeLog(resMap,tradeAmount,callBackUrl,merchantInfo);
+            QrcodeInfo qrcodeInfo = tradeLogSrv.getQrcodeAndSaveTradeLog(resMap, tradeAmount, callBackUrl, merchantInfo);
 
-            if (ObjectUtil.isNotNull(qrcodeInfo)){
+            if (ObjectUtil.isNotNull(qrcodeInfo)) {
                 //如果正确获取二维码记录，并保存交易日志，读取本地图片输入流
                 String imgPath = ResKit.getConfig("qrcode.img.path");
                 inputStream = new FileInputStream(imgPath + "/" + qrcodeInfo.getWxAcct() + "/" + qrcodeInfo.getImgName());
@@ -210,12 +209,12 @@ public class TradeLogCtr extends CoreController {
         getResponse().setCharacterEncoding("utf-8");
 
         String tradeNo = getPara("tradeNo");
-        String sql  = "select * from trade_log tt where  tt.tradeNo = '"+tradeNo+"'";
+        String sql = "select * from trade_log tt where  tt.tradeNo = '" + tradeNo + "'";
 
         TradeLog tradeLog = TradeLog.dao.findFirst(sql);
 
         Map resMap = new HashMap();
-        if(ObjectUtil.isNull(tradeLog)){
+        if (ObjectUtil.isNull(tradeLog)) {
             resMap.put("tradeNo", tradeNo);
             resMap.put("resMsg", "无此交易");
             renderJson(resMap);
@@ -229,7 +228,7 @@ public class TradeLogCtr extends CoreController {
 
     @com.jfinal.aop.Clear(AdminIAuthInterceptor.class)
     @Before({Tx.class})
-    public void tradeNotify(){
+    public void tradeNotify() {
         //设置发送到客户端的响应内容类型
         getResponse().addHeader("Access-Control-Allow-Origin", "*");   //用于ajax post跨域（*，最好指定确定的http等协议+ip+端口号）
         getResponse().setCharacterEncoding("utf-8");
@@ -237,10 +236,22 @@ public class TradeLogCtr extends CoreController {
         String wxAcct = getPara("wxCode");
         String bak = getPara("bak");
         String payAmount = getPara("payAmount");
-        tradeLogSrv.updateTradeStatus(wxAcct,payAmount);
-Map resMap = new HashMap();
-        resMap.put("resCode","0000");
+        TradeLog tradeLog = tradeLogSrv.updateTradeStatus(wxAcct, payAmount);
+
+        if (ObjectUtil.isNotNull(tradeLog)) {
+            String url = tradeLog.getCallBackUrl();
+            if (StringUtils.isNotBlank(url)) {
+                Map<String, String> map = new HashMap<>();
+                map.put("tradeNo", tradeLog.getTradeNo());
+                map.put("tradeStatus", tradeLog.getTradeStatus());
+                HttpKit.post(url, map, "");
+                LogKit.info("调用交易回调接口，地址为：" + url);
+            }
+        }
+        Map resMap = new HashMap();
+        resMap.put("resCode", "0000");
         renderJson(resMap);
+
 
     }
 
