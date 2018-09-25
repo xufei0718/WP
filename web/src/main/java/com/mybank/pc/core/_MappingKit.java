@@ -37,6 +37,7 @@ public class _MappingKit {
 		arp.addMapping("s_ufile", "id", Ufile.class);
 		arp.addMapping("s_user", "id", User.class);
 		arp.addMapping("s_user_role", "id", UserRole.class);
+		arp.addMapping("log_op", "id", LogOp.class);
 		arp.addMapping("qrcode_info", "id", QrcodeInfo.class);
 		arp.addMapping("qrcode_wxacct", "id", QrcodeWxacct.class);
 		arp.addMapping("trade_log", "id", TradeLog.class);

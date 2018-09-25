@@ -25,18 +25,19 @@ import java.util.zip.GZIPOutputStream;
 public class TradeLogSrv {
 
 
-    public  String createTradeNo(){
+    public String createTradeNo() {
 
-        String strTime = DateKit.dateToStr(new Date(),DateKit.yyyyMMddHHmmssSSS);
+        String strTime = DateKit.dateToStr(new Date(), DateKit.yyyyMMddHHmmssSSS);
 
         String strRandom = RandomUtil.randomNumbers(6);
 
-        return strTime +strRandom;
+        return strTime + strRandom;
 
     }
 
     /**
      * 获取可用二维码，并生成交易记录
+     *
      * @param resMap
      * @param tradeAmount
      * @param callBackUrl
@@ -45,7 +46,7 @@ public class TradeLogSrv {
      * @throws IOException
      */
     @Before({Tx.class})
-    public synchronized QrcodeInfo getQrcodeAndSaveTradeLog(Map resMap ,  String tradeAmount , String callBackUrl ,MerchantInfo merchantInfo) throws IOException {
+    public synchronized QrcodeInfo getQrcodeAndSaveTradeLog(Map resMap, String tradeAmount, String callBackUrl, MerchantInfo merchantInfo) throws IOException {
         String sql = "select * from qrcode_info qi where  qi.amount=" + tradeAmount + " and qi.isLock='0' and qi.isVail='0' and qi.dat is null order by qi.realAmount desc";
         QrcodeInfo qrcodeInfo = QrcodeInfo.dao.findFirst(sql);
 
@@ -80,25 +81,27 @@ public class TradeLogSrv {
 
 
         resMap.put("tradeNo", tradeNo);
-        resMap.put("tradeRealAmount",  tradeLog.getTradeRealAmount());
+        resMap.put("tradeRealAmount", tradeLog.getTradeRealAmount());
         resMap.put("resCode", "0");
         resMap.put("resMsg", "交易图片获取成功");
         return qrcodeInfo;
     }
+
     /**
-     *  更新商户账户余额
+     * 更新商户账户余额
+     *
      * @param merID
      * @param amount
      * @param mathType ture:加法  false:减法
      */
 
-    public synchronized MerchantInfo updateMerAmount(Integer merID ,BigDecimal amount,boolean mathType){
+    public synchronized MerchantInfo updateMerAmount(Integer merID, BigDecimal amount, boolean mathType) {
         MerchantInfo merchantInfo = MerchantInfo.dao.findById(merID);
-        if(ObjectUtil.isNotNull(merchantInfo)){
+        if (ObjectUtil.isNotNull(merchantInfo)) {
             BigDecimal Tamount;
-            if (mathType){
-                 Tamount = merchantInfo.getMaxTradeAmount().add(amount);
-            }else{
+            if (mathType) {
+                Tamount = merchantInfo.getMaxTradeAmount().add(amount);
+            } else {
                 Tamount = merchantInfo.getMaxTradeAmount().subtract(amount);
             }
 
@@ -113,23 +116,24 @@ public class TradeLogSrv {
      * 更新交易状态为成功
      */
     @Before({Tx.class})
-    public synchronized TradeLog updateTradeStatus(String wxAcct ,String payAmount){
-        String sql  = "select * from trade_log tt where tt.dat is null and tt.tradeWxAcct = '"+wxAcct+"' and tt.tradeRealAmount="+payAmount +" and tt.tradeStatus='1' ";
+    public synchronized TradeLog updateTradeStatus(String wxAcct, String payAmount) {
+        String sql = "select * from trade_log tt where tt.dat is null and tt.tradeWxAcct = '" + wxAcct + "' and tt.tradeRealAmount=" + payAmount + " and tt.tradeStatus='1' ";
 
         TradeLog tradeLog = TradeLog.dao.findFirst(sql);
-        if(ObjectUtil.isNotNull(tradeLog)){
-            QrcodeInfo qrcodeInfo = QrcodeInfo.dao.findById(tradeLog.getTradeQrcodeID());
+        if (ObjectUtil.isNotNull(tradeLog)) {
+            if (!"0".equals(tradeLog.getTradeStatus())) {
+                QrcodeInfo qrcodeInfo = QrcodeInfo.dao.findById(tradeLog.getTradeQrcodeID());
+                tradeLog.setMat(new Date());
+                tradeLog.setTradeStatus("0");//交易成功
+                tradeLog.update();
+                qrcodeInfo.setIsLock("0");
+                qrcodeInfo.update();
+                //累加商户账户余额
+                updateMerAmount(tradeLog.getTradeMerID(), tradeLog.getTradeRealAmount(), true);
 
-
-            tradeLog.setMat(new Date());
-            tradeLog.setTradeStatus("0");//交易成功
-            tradeLog.update();
-
-
-            qrcodeInfo.setIsLock("0");
-            qrcodeInfo.update();
-            //累加商户账户余额
-            updateMerAmount(tradeLog.getTradeMerID(),tradeLog.getTradeRealAmount(),true);
+                //交易结果回调接口，
+                tradeCallBack(tradeLog);
+            }
         }
         return tradeLog;
 
@@ -138,6 +142,7 @@ public class TradeLogSrv {
 
     /**
      * 加载本地文件,并转换为byte数组
+     *
      * @return
      */
     public static byte[] loadFile() {
@@ -145,7 +150,7 @@ public class TradeLogSrv {
         File file = new File("d:/11.jpg");
         FileInputStream fis = null;
         ByteArrayOutputStream baos = null;
-        byte[] data = null ;
+        byte[] data = null;
         try {
             fis = new FileInputStream(file);
             baos = new ByteArrayOutputStream((int) file.length());
@@ -154,7 +159,7 @@ public class TradeLogSrv {
             while ((len = fis.read(buffer)) != -1) {
                 baos.write(buffer, 0, len);
             }
-            data = baos.toByteArray() ;
+            data = baos.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -163,14 +168,13 @@ public class TradeLogSrv {
                     fis.close();
                     fis = null;
                 }
-                baos.close() ;
+                baos.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        return data ;
+        return data;
     }
-
 
 
     /**
@@ -181,32 +185,32 @@ public class TradeLogSrv {
      */
     public static byte[] compress(byte[] data) {
         System.out.println("before:" + data.length);
-        GZIPOutputStream gzip = null ;
-        ByteArrayOutputStream baos = null ;
-        byte[] newData = null ;
+        GZIPOutputStream gzip = null;
+        ByteArrayOutputStream baos = null;
+        byte[] newData = null;
         try {
-            baos = new ByteArrayOutputStream() ;
+            baos = new ByteArrayOutputStream();
             gzip = new GZIPOutputStream(baos);
             gzip.write(data);
             gzip.finish();
             gzip.flush();
-            newData = baos.toByteArray() ;
+            newData = baos.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
                 gzip.close();
-                baos.close() ;
+                baos.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         System.out.println("after:" + newData.length);
-        return newData ;
+        return newData;
 
     }
 
-    public void tradeCallBack(TradeLog tradeLog){
+    public void tradeCallBack(TradeLog tradeLog) {
         if (ObjectUtil.isNotNull(tradeLog)) {
             String url = tradeLog.getCallBackUrl();
             if (StringUtils.isNotBlank(url)) {
@@ -215,11 +219,12 @@ public class TradeLogSrv {
                 map.put("tradeStatus", tradeLog.getTradeStatus());
                 try {
                     HttpKit.post(url, map, "");
-                }catch (Exception e){
+                    LogKit.info("调用交易回调接口，地址为：" + url);
+                } catch (Exception e) {
                     LogKit.info("调用交易回调接口地址无效：" + url);
                     //e.printStackTrace();
                 }
-                LogKit.info("调用交易回调接口，地址为：" + url);
+
             }
         }
     }

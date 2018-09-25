@@ -103,19 +103,23 @@ public class TradeLogCtr extends CoreController {
         TradeLog tradeLog = getModel(TradeLog.class, "", true);
 
         QrcodeInfo qrcodeInfo = QrcodeInfo.dao.findById(tradeLog.getTradeQrcodeID());
+        if (!"0".equals(tradeLog.getTradeStatus())) {
+            tradeLog.setTradeStatus("0");
+            tradeLog.setMat(new Date());
+            if (ObjectUtil.isNotNull(currUser())) {
+                tradeLog.setOperID(String.valueOf(currUser().getId()));
+            }
+            tradeLog.update();
 
-        tradeLog.setTradeStatus("0");
-        tradeLog.setMat(new Date());
-        if (ObjectUtil.isNotNull(currUser())) {
-            tradeLog.setOperID(String.valueOf(currUser().getId()));
+            qrcodeInfo.setIsLock("0");
+            qrcodeInfo.update();
+            //累加商户账户余额
+            tradeLogSrv.updateMerAmount(tradeLog.getTradeMerID(), tradeLog.getTradeRealAmount(), true);
+            //交易结果回调接口，
+            tradeLogSrv.tradeCallBack(tradeLog);
+
+            renderSuccessJSON("交易状态已更正。", "");
         }
-        tradeLog.update();
-
-        qrcodeInfo.setIsLock("0");
-        qrcodeInfo.update();
-        //累加商户账户余额
-        tradeLogSrv.updateMerAmount(tradeLog.getTradeMerID(), tradeLog.getTradeRealAmount(), true);
-        renderSuccessJSON("交易状态已更正。", "");
     }
 
     /**
@@ -235,8 +239,7 @@ public class TradeLogCtr extends CoreController {
         String bak = getPara("bak");
         String payAmount = getPara("payAmount");
         TradeLog tradeLog = tradeLogSrv.updateTradeStatus(wxAcct, payAmount);
-        //交易结果回调接口，
-        tradeLogSrv.tradeCallBack(tradeLog);
+
         Map resMap = new HashMap();
         resMap.put("resCode", "0000");
         renderJson(resMap);

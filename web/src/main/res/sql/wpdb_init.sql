@@ -535,7 +535,7 @@ CREATE TABLE `s_user` (
 -- Records of s_user
 -- ----------------------------
 BEGIN;
-INSERT INTO `s_user` VALUES (8, NULL, '管理员', 0, 'http://images.cichlid.cc/image/avatar/dft-avatar.jpg', NULL, '写点啥吧～', NULL, NULL, NULL, '2018-01-27 22:06:12', '2018-05-07 10:43:21', '13998377271', NULL, '0', NULL, NULL, '2018-09-13 17:08:07', NULL, 0, 0, 0, 0, NULL, '$2a$10$HhLZkzVCsbp5KHwGRY2KuOPmKq4y5AiWcULWQwdQVr0UuBAqNV44G', '$2a$10$HhLZkzVCsbp5KHwGRY2KuO', 'mb-admin', '0', NULL, NULL);
+INSERT INTO `s_user` VALUES (8, NULL, '管理员', 0, 'http://images.cichlid.cc/image/avatar/dft-avatar.jpg', NULL, '写点啥吧～', NULL, NULL, NULL, '2018-01-27 22:06:12', '2018-05-07 10:43:21', '13911111111', NULL, '0', NULL, NULL, '2018-09-13 17:08:07', NULL, 0, 0, 0, 0, NULL, '$2a$10$HhLZkzVCsbp5KHwGRY2KuOPmKq4y5AiWcULWQwdQVr0UuBAqNV44G', '$2a$10$HhLZkzVCsbp5KHwGRY2KuO', 'mb-admin', '0', NULL, NULL);
 INSERT INTO `s_user` VALUES (9, NULL, '操作员', 0, 'http://images.cichlid.cc/image/avatar/dft-avatar.jpg', NULL, '写点啥吧～', NULL, NULL, NULL, '2018-01-27 22:06:48', '2018-01-27 22:06:48', '18899998888', NULL, '0', NULL, NULL, '2018-09-11 19:48:04', NULL, 0, 0, 0, 0, NULL, '$2a$10$N.2yLGRkdXQLUTBiFre3S.Ehhh8Rv.G8fccvPu8gJn5rscnfpvduu', '$2a$10$N.2yLGRkdXQLUTBiFre3S.', 'oper', '1', NULL, NULL);
 COMMIT;
 

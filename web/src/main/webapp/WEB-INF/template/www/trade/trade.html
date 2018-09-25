@@ -118,7 +118,7 @@
             return false;
         }
 
-        $.post("http://localhost:8082/tt00/tradeQrcode",{tradeAmount:tradeAmount,merNo:'100001',merIdCode:'cgq2qh1s'}, function(data) {
+        $.post("http://localhost:8082/tt00/tradeQrcode",{tradeAmount:tradeAmount,merNo:'100001',merIdCode:'izi3x12z',callBackUrl:'',}, function(data) {
             console.info(data);
             if(data.resCode=='0'){
                 $("#images").attr("src", "data:image/gif;base64," + data.imgData);
