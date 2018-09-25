@@ -3,12 +3,14 @@ package com.mybank.pc.trade.log;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.jfinal.aop.Before;
+import com.jfinal.kit.HttpKit;
 import com.jfinal.kit.LogKit;
 import com.jfinal.plugin.activerecord.tx.Tx;
 import com.mybank.pc.kits.DateKit;
 import com.mybank.pc.merchant.model.MerchantInfo;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
 import com.mybank.pc.trade.model.TradeLog;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -16,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
@@ -201,5 +204,23 @@ public class TradeLogSrv {
         System.out.println("after:" + newData.length);
         return newData ;
 
+    }
+
+    public void tradeCallBack(TradeLog tradeLog){
+        if (ObjectUtil.isNotNull(tradeLog)) {
+            String url = tradeLog.getCallBackUrl();
+            if (StringUtils.isNotBlank(url)) {
+                Map<String, String> map = new HashMap<>();
+                map.put("tradeNo", tradeLog.getTradeNo());
+                map.put("tradeStatus", tradeLog.getTradeStatus());
+                try {
+                    HttpKit.post(url, map, "");
+                }catch (Exception e){
+                    LogKit.info("调用交易回调接口地址无效：" + url);
+                    //e.printStackTrace();
+                }
+                LogKit.info("调用交易回调接口，地址为：" + url);
+            }
+        }
     }
 }

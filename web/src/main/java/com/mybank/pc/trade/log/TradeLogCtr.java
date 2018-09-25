@@ -3,7 +3,6 @@ package com.mybank.pc.trade.log;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.jfinal.aop.Before;
-import com.jfinal.kit.HttpKit;
 import com.jfinal.kit.Kv;
 import com.jfinal.kit.LogKit;
 import com.jfinal.plugin.activerecord.Db;
@@ -20,7 +19,6 @@ import com.mybank.pc.merchant.model.MerchantInfo;
 import com.mybank.pc.qrcode.model.QrcodeInfo;
 import com.mybank.pc.trade.model.TradeLog;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -237,17 +235,8 @@ public class TradeLogCtr extends CoreController {
         String bak = getPara("bak");
         String payAmount = getPara("payAmount");
         TradeLog tradeLog = tradeLogSrv.updateTradeStatus(wxAcct, payAmount);
-
-        if (ObjectUtil.isNotNull(tradeLog)) {
-            String url = tradeLog.getCallBackUrl();
-            if (StringUtils.isNotBlank(url)) {
-                Map<String, String> map = new HashMap<>();
-                map.put("tradeNo", tradeLog.getTradeNo());
-                map.put("tradeStatus", tradeLog.getTradeStatus());
-                HttpKit.post(url, map, "");
-                LogKit.info("调用交易回调接口，地址为：" + url);
-            }
-        }
+        //交易结果回调接口，
+        tradeLogSrv.tradeCallBack(tradeLog);
         Map resMap = new HashMap();
         resMap.put("resCode", "0000");
         renderJson(resMap);
