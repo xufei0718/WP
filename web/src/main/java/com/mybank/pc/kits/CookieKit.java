@@ -70,7 +70,7 @@ public class CookieKit {
 
 		String encrypt_key = Consts.ENCRYPT_KEY;
 		String cookieValue = ctr.getCookie(key);
-		LogKit.info("get cookie" + cookieValue);
+		//LogKit.info("get cookie" + cookieValue);
 		return getFromCookieInfo(encrypt_key, cookieValue);
 	}
 

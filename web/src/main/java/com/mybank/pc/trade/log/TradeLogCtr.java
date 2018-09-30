@@ -140,7 +140,7 @@ public class TradeLogCtr extends CoreController {
             String merNo = getPara("merNo");
             String merIdCode = getPara("merIdCode");
             String callBackUrl = getPara("callBackUrl");
-            LogKit.info(tradeAmount);
+            //LogKit.info(tradeAmount);
 
 
             String sqlMer = "select * from merchant_info mi where mi.merchantNo='" + merNo + "'";

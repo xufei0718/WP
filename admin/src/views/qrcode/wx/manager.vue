@@ -156,13 +156,15 @@
             login() {
                 let vm = this;
                 this.$store.dispatch('qrcodeWx_login', {wxAcct: vm.qrcodeWx.wxAcct}).then((res) => {
+                    if (res.code && res.code == 'success') {
+                        vm.$store.commit('wxManager_updateIsLoginShow', false)
+                        vm.cTime = setInterval(() => {
+                            this.getLoginImg();
+                        }, 1000)
+                    }else{
+                        this.$Message.error('微信服务连接失败，请检查微信登陆服务器！');
+                    }
 
-                    vm.$store.commit('wxManager_updateIsLoginShow', false)
-
-
-                    vm.cTime = setInterval(() => {
-                        this.getLoginImg();
-                    }, 1000)
                 })
             },
             logout() {

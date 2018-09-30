@@ -178,13 +178,15 @@ public class QrcodeWxCtr extends CoreController {
 
                 res = HttpKit.post(url, map, "");
                 LogKit.info("返回信息：" + res);
-
+                resMap.put("code", res);
             } catch (Exception e) {
                 e.printStackTrace();
+                resMap.put("code", "error");
+                renderJson(resMap);
             }
 
 
-            resMap.put("code", "0000");
+
             renderJson(resMap);
         } catch (IOException e) {
             e.printStackTrace();
